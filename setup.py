@@ -22,7 +22,8 @@ setup(
     description="A simple client SDK in Python3 language for ksyun's KS3 object storage service",
 
     install_requires=[
-        'requests'
+        'requests',
+        'lxml',
     ],
 
     use_scm_version={
