@@ -1,5 +1,5 @@
 import hmac
-import typing as T
+import typing as t
 from base64 import encodebytes
 from hashlib import sha1
 from urllib.parse import quote_plus
@@ -7,18 +7,20 @@ from urllib.parse import quote_plus
 from .constants import HTTP_VERBS, SUB_RESOURCES
 
 
-def get_auth_header(
+def generate_auth_header(
         http_verb: str,
         http_date: str,
         access_key: str,
         secret_key: str,
         bucket_name: str = '',
         object_key: str = '',
-        sub_resources: T.Optional[T.Union[str, T.List[str], T.Tuple[str]]] = None,
+        sub_resources: t.Optional[t.Union[str, t.List[str], t.Tuple[str]]] = None,
+        content_md5: str = '',
 ) -> str:
     # 参数验证
+    http_verb = http_verb.strip().upper()
     if http_verb not in HTTP_VERBS:
-        raise ValueError('Un-support http verb %r'.format(http_verb))
+        raise ValueError('Un-support http verb {!r}'.format(http_verb))
     if sub_resources:
         if isinstance(sub_resources, str):
             sub_resources = [sub_resources]
@@ -44,7 +46,7 @@ def get_auth_header(
         canonical_resource += '?' + sub_res_text
     # String to sign
     string_to_sign = http_verb + '\n'  # HTTP-Verb
-    string_to_sign += '\n'  # Content-MD5
+    string_to_sign += content_md5 + '\n'  # Content-MD5
     string_to_sign += '\n'  # Content-Type
     string_to_sign += http_date + '\n'  # Date
     string_to_sign += canonical_kss_headers + canonical_resource  # Canonical-KssHeaders + Canonical-Resource
