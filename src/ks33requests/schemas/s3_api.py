@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Jun  6 19:16:59 2019 by generateDS.py version 2.32.0.
+# Generated Mon Jun 10 11:49:52 2019 by generateDS.py version 2.32.0.
 # Python 3.6.7 (default, Oct 22 2018, 11:32:17)  [GCC 8.2.0]
 #
 # Command line options:
-#   ('-o', 'src/ks33requests/schemas/amazon_s3.py')
+#   ('-f', '')
+#   ('-o', 's3_api.py')
+#   ('-s', 's3_sub.py')
+#   ('--super', 's3_api')
 #
 # Command line arguments:
 #   schemas/AmazonS3.xsd
 #
 # Command line:
-#   /mnt/1B9074BA60C16502/works/huamei/大江传媒AI媒体数据处理/ks33requests/.venv/bin/generateDS -o "src/ks33requests/schemas/amazon_s3.py" schemas/AmazonS3.xsd
+#   generateDS.py -f -o "s3_api.py" -s "s3_sub.py" --super="s3_api" schemas/AmazonS3.xsd
 #
 # Current working directory (os.getcwd()):
 #   ks33requests
@@ -8781,8 +8784,8 @@ def parseLiteral(inFileName, silence=False):
     # Enable Python to collect the space used by the DOM.
     doc = None
     if not silence:
-        sys.stdout.write('#from amazon_s3 import *\n\n')
-        sys.stdout.write('import amazon_s3 as model_\n\n')
+        sys.stdout.write('#from s3_api import *\n\n')
+        sys.stdout.write('import s3_api as model_\n\n')
         sys.stdout.write('rootObj = model_.rootClass(\n')
         rootObj.exportLiteral(sys.stdout, 0, name_=rootTag)
         sys.stdout.write(')\n')

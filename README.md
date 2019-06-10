@@ -4,5 +4,5 @@
 http://s3.amazonaws.com/doc/2006-03-01/AmazonS3.xsd
 
 ```bash
-generateDS -o src/ks33requests/schemas/amazon_s3.py schemas/AmazonS3.xsd 
+generateDS.py -f -o s3_api.py -s s3_sub.py --super=s3_api  schemas/AmazonS3.xsd 
 ```

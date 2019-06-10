@@ -47,15 +47,17 @@ class Ks3Error(Exception):
         return self._request_id
 
 
-def raise_for_error(resp: requests.Response):
+def raise_for_errors(resp: requests.Response, raise_for_status=True):
     status = resp.status_code
     if status in SUPPORTED_ERROR_HTTP_STATUES:
         root = etree.fromstring(resp.content)
         assert root.tag == 'Error'
-        kv_args = {'status': status, 'code': None, 'message': None, 'resource': None, 'request_id': None}
+        kv_args = {'status': status}
+        kv_args.update({k: '' for k in ('code', 'message', 'resource', 'request_id')})
         for child in root:
-            tag = child.tag.lower()
+            tag = child.tag.strip().lower()
             if tag in kv_args:
-                kv_args[tag] = child.text
+                kv_args[tag] = child.text.strip()
         raise Ks3Error(**kv_args)
-    resp.raise_for_status()
+    if raise_for_status:
+        resp.raise_for_status()
