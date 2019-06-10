@@ -1,11 +1,12 @@
+import io
 import typing as t
 from hashlib import md5
-from urllib.parse import quote_plus
 
 import requests
 
 from .auth import make_canonical_resource_string, generate_auth_headers
-from .constants import SUB_RESOURCES
+from .errors import raise_for_errors
+from .schemas import s3_sub
 
 
 class Client:
@@ -24,10 +25,10 @@ class Client:
 
     def call_api(self,
                  verb: str = 'GET',
-                 bucket_name: str = '',
-                 object_key: str = '',
-                 sub_resources: t.Optional[t.Union[str, t.List[str]]] = None,
-                 data: t.Union[str, bytes, bytearray] = None,
+                 bucket_name: str = None,
+                 object_key: str = None,
+                 sub_resources: t.Union[str, t.List[str]] = None,
+                 data: t.Union[str, bytes, bytearray, t.Generator, t.BinaryIO, t.TextIO] = None,
                  headers: t.Dict[str, str] = None,
                  params: t.Dict[str, str] = None,
                  session: requests.Session = None
@@ -36,16 +37,26 @@ class Client:
         verb = verb.strip().upper()
         if verb not in ('POST', 'PUT'):
             data = None
-        # Signature
+        # Content MD5
         content_md5 = ''
         if data:
             if isinstance(data, str):
-                b_data = data.encode()
+                content_md5 = md5(data.encode()).hexdigest()
             elif isinstance(data, (bytes, bytearray)):
-                b_data = data
-            else:
-                raise TypeError('Invalid type {!r} of parameter `data`'.format(type(data)))
-            content_md5 = md5(b_data).hexdigest()
+                content_md5 = md5(data).hexdigest()
+            elif isinstance(data, t.BinaryIO):
+                h = md5()
+                for chunk in data.read(io.DEFAULT_BUFFER_SIZE):
+                    h.update(chunk)
+                content_md5 = h.hexdegist()
+                data.seek(0)
+            elif isinstance(data, t.TextIO):
+                h = md5()
+                for chunk in data.read(io.DEFAULT_BUFFER_SIZE):
+                    h.update(chunk.encode(encoding=data.encoding))
+                content_md5 = h.hexdegist()
+                data.seek(0)
+        # Signature
         canonical_resource = make_canonical_resource_string(bucket_name, object_key, sub_resources)
         auth_headers = generate_auth_headers(
             http_verb=verb,
@@ -74,29 +85,12 @@ class Client:
         else:
             raise ValueError('Un-support HTTP verb {!r}'.format(verb))
         # url
-        canonical_resource = '/'
-        if sub_resources:
-            if isinstance(sub_resources, str):
-                sub_resources = [sub_resources]
-            if isinstance(sub_resources, (tuple, list)):
-                if any(s not in SUB_RESOURCES for s in sub_resources):
-                    raise ValueError('Invalid value in sub-resources list')
-                sub_res_text = '&'.join(sorted(sub_resources))
-            else:
-                raise TypeError('Invalid type {!r} of parameter `sub_resources`'.format(type(sub_resources)))
-        else:
-            sub_res_text = ''
-        if bucket_name:
-            canonical_resource += bucket_name + '/'
-        if object_key:
-            canonical_resource += quote_plus(object_key)
-        if sub_res_text:
-            canonical_resource += '?' + sub_res_text
-        # url
         url = '{}://{}{}'.format(self.schema, self._endpoint, canonical_resource)
         # headers
         headers = headers or {}
         headers.update(auth_headers)
+        if content_md5:
+            headers['Content-MD5'] = content_md5
         # send http request
         resp = act(
             url=url,
@@ -105,6 +99,13 @@ class Client:
             data=data
         )
         return resp
+
+    def call_api_s3res(self, *args, **kwargs):
+        resp = self.call_api(*args, **kwargs)
+        raise_for_errors(resp)
+        if resp.content:
+            return s3_sub.parseString(resp.content)
+        return None
 
     @property
     def schema(self) -> str:

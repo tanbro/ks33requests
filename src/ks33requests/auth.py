@@ -4,7 +4,6 @@ from hashlib import sha1
 from typing import Dict, List, Optional, Union
 from urllib.parse import quote_plus
 
-from .constants import HTTP_VERBS, SUB_RESOURCES
 from .utils import http_format_date
 
 
@@ -18,8 +17,6 @@ def make_canonical_resource_string(
         if isinstance(sub_resources, str):
             sub_resources = [sub_resources]
         if isinstance(sub_resources, (tuple, list)):
-            if any(s not in SUB_RESOURCES for s in sub_resources):
-                raise ValueError('Invalid value in sub-resources list')
             sub_res_text = '&'.join(sorted(sub_resources))
         else:
             raise TypeError('Wrong type {!r} of argument `sub_resources`'.format(type(sub_resources)))
@@ -43,8 +40,6 @@ def generate_auth_headers(
 ) -> Dict[str, str]:
     # 参数验证
     http_verb = http_verb.strip().upper()
-    if http_verb not in HTTP_VERBS:
-        raise ValueError('Un-support http verb {!r}'.format(http_verb))
     # Date
     date_text = http_format_date()
     # Canonical KssHeaders
