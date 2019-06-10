@@ -47,7 +47,7 @@ class Ks3Error(Exception):
         return self._request_id
 
 
-def raise_for_errors(resp: requests.Response, raise_for_status=True):
+def raise_for_ks3_status(resp: requests.Response, raise_for_other_status=True):
     status = resp.status_code
     if status in SUPPORTED_ERROR_HTTP_STATUES:
         root = etree.fromstring(resp.content)
@@ -59,5 +59,5 @@ def raise_for_errors(resp: requests.Response, raise_for_status=True):
             if tag in kv_args:
                 kv_args[tag] = child.text.strip()
         raise Ks3Error(**kv_args)
-    if raise_for_status:
+    if raise_for_other_status:
         resp.raise_for_status()

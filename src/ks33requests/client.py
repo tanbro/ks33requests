@@ -5,7 +5,7 @@ from hashlib import md5
 import requests
 
 from .auth import make_canonical_resource_string, generate_auth_headers
-from .errors import raise_for_errors
+from .errors import raise_for_ks3_status
 from .schemas import s3_sub
 
 
@@ -102,7 +102,7 @@ class Client:
 
     def call_api_s3res(self, *args, **kwargs):
         resp = self.call_api(*args, **kwargs)
-        raise_for_errors(resp)
+        raise_for_ks3_status(resp)
         if resp.content:
             return s3_sub.parseString(resp.content)
         return None

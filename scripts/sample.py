@@ -1,5 +1,5 @@
 from ks33requests.client import Client
-from ks33requests.errors import raise_for_errors
+from ks33requests.errors import raise_for_ks3_status
 
 ak = 'AKLToyzMEPK6RuGHFWXC1nfxlg'
 sk = 'OBREz7VfDqvfqgjKJHPJl2+GKYwikVxJ3Z3jgn7CTB4JgdCfMCEt93BssvPouCbrEA=='
@@ -23,14 +23,14 @@ print('区域是:', result.valueOf_)
 # for content in result.Contents:
 #     file_name = content.Key
 #     resp = c.call_api('GET', bucket_name=bucket_name, object_key=file_name)
-#     raise_for_errors(resp)
+#     raise_for_ks3_status(resp)
 #     print('打印文件', file_name, '的内容 ...')
 #     for chunk in resp.iter_content(io.DEFAULT_BUFFER_SIZE):
 #         print(chunk.decode())
 #
 #     # 获取这个文件的 ACL:
 #     resp = c.call_api('GET', bucket_name=bucket_name, object_key=file_name, sub_resources='acl')
-#     raise_for_errors(resp)
+#     raise_for_ks3_status(resp)
 #     print('ACL: ', resp.text)
 #
 #     break
@@ -43,7 +43,7 @@ print('区域是:', result.valueOf_)
 #     c.call_api_s3_response('put', bucket_name=bucket_name, object_key=file_name, data=fp)
 # # 下载看看文件信息!
 # resp = c.call_api('get', bucket_name=bucket_name, object_key=file_name)
-# raise_for_errors(resp)
+# raise_for_ks3_status(resp)
 # assert text == resp.text
 
 
@@ -54,4 +54,4 @@ print('区域是:', result.valueOf_)
 #     print('uploading ...')
 #     resp = c.call_api('put', bucket_name=bucket_name, object_key=object_key, data=fp)
 #     print('upload OK')
-#     raise_for_errors(resp)
+#     raise_for_ks3_status(resp)

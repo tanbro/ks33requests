@@ -11,20 +11,13 @@ see:
 
 from setuptools import find_packages as find, setup
 
-
 setup(
     name='ks33requests',
+    description="A simple client SDK in Python3 language for ksyun's KS3 object storage service",
     url='https://github.com/tanbro/ks33requests',
 
     packages=find('src'),
     package_dir={'': 'src'},
-
-    description="A simple client SDK in Python3 language for ksyun's KS3 object storage service",
-
-    install_requires=[
-        'requests',
-        'lxml',
-    ],
 
     use_scm_version={
         # guess-next-dev:	automatically guesses the next development version (default)
@@ -38,4 +31,10 @@ setup(
     author_email='liu_xue_yan@foxmail.com',
     long_description=open('README.md', encoding='utf8').read(),
     long_description_content_type='text/markdown',
+
+    python_requires='>=3.5',
+    install_requires=[
+        'requests',
+        'lxml',
+    ],
 )
