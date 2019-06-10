@@ -5,10 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 ks33requests = {editable = true,path = "."}
-generateds = "*"
 setuptools-scm = "*"
 setuptools-scm-git-archive = "*"
 jupyter = "*"
+generateds = "*"
 
 [packages]
 

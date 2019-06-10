@@ -13,7 +13,7 @@ from setuptools import find_packages as find, setup
 
 setup(
     name='ks33requests',
-    description="A simple client SDK in Python3 language for ksyun's KS3 object storage service",
+    description='适用于金山云对象存储(KS3)的简单Python3客户端',
     url='https://github.com/tanbro/ks33requests',
 
     packages=find('src'),
