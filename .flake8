@@ -1,0 +1,14 @@
+[flake8]
+exclude =
+    .git/,
+    .venv/,
+    __pycache__,
+    docs/,
+    data/,
+    out/,
+    build/,
+    dist/,
+    .vscode/,
+    .idea/
+max-line-length = 120
+max-complexity = 10

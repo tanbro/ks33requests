@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+ks33requests = {editable = true,path = "."}
+setuptools-scm = "*"
+setuptools-scm-git-archive = "*"
+jupyter = "*"
+generateds = "*"
+
+[packages]
+
+[requires]
+python_version = "3.6"
