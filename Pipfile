@@ -8,6 +8,7 @@ ks33requests = {editable = true,path = "."}
 generateds = "*"
 setuptools-scm = "*"
 setuptools-scm-git-archive = "*"
+jupyter = "*"
 
 [packages]
 
