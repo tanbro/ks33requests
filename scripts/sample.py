@@ -48,10 +48,10 @@ print('区域是:', result.valueOf_)
 
 
 # 上传一个大文件试试看
-file_path = '/mnt/1B9074BA60C16502/works/huamei/大江传媒AI媒体数据处理/data/湖口/20190416.mp4'
-object_key = '湖口-20190416.mp4'
-with open(file_path, 'rb') as fp:
-    print('uploading ...')
-    resp = c.call_api('put', bucket_name=bucket_name, object_key=object_key, data=fp)
-    print('upload OK')
-    raise_for_errors(resp)
+# file_path = '/mnt/1B9074BA60C16502/works/huamei/大江传媒AI媒体数据处理/data/湖口/20190416.mp4'
+# object_key = '湖口-20190416.mp4'
+# with open(file_path, 'rb') as fp:
+#     print('uploading ...')
+#     resp = c.call_api('put', bucket_name=bucket_name, object_key=object_key, data=fp)
+#     print('upload OK')
+#     raise_for_errors(resp)
