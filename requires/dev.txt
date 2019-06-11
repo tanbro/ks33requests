@@ -1,0 +1,4 @@
+generateDS
+python-dotenv
+jupyter
+twine

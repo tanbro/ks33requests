@@ -4,3 +4,5 @@ dependencies:
   - requests
   - lxml
   - jupyter
+  - python-dotenv
+  - twine

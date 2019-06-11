@@ -18,32 +18,33 @@ cd ks33requests
 
 强烈建议在 [virtual environment] 中进行开发工作。
 
-- 如果用 [venv][]:
+- 如果使用 [venv][]+[pip][]:
 
-  使用标准库的[venv][]可执行模组直接新建名为`venv`的虚拟环境目录，然后将本项目以“开发模式”安装到这个环境：
+  使用标准库的[venv][]可执行模组直接新建名为`venv`的虚拟环境目录，然后将本项目以“开发模式”安装到这个环境，以及安装开发所需的包：
 
   ```bash
   path/to/python -m venv venv
   venv/bin/python setup.py develop
+  venv/bin/pip install -r requires/dev.txt
   ```
 
--### Pipenv
+- 如果使用 [Pipenv][]:
 
-使用 [Pipenv][] 直接安装:
+  使用 [Pipenv][] 命令直接安装:
 
-```bash
-pipenv install --dev
-```
+  ```bash
+  pipenv install --dev
+  ```
 
-### conda
+- 如果使用 [conda][]
 
-使用 [conda][] 从配置文件新建一个专用于这个项目的、名为`ks33requests-dev`的环境，然后激活它，将本项目以“开发模式”安装到这个环境：
+  使用 [conda][] 从配置文件新建一个专用于这个项目的、名为`ks33requests-dev`的环境，然后激活它，将本项目以“开发模式”安装到这个环境：
 
-```bash
-conda env create -f environment.yml
-conda activate ks33requests-dev
-python setup.py develop
-```
+  ```bash
+  conda env create -f environment.yml
+  conda activate ks33requests-dev
+  python setup.py develop
+  ```
 
 ### XML Schema
 
@@ -65,9 +66,9 @@ generateDS.py -f -o s3_api.py -s s3_sub.py --super=s3_api  schemas/AmazonS3.xsd
 TODO ...
 
 [Python]: https://python.org/
-[virtual environment]: https://docs.python.org/3.7/glossary.html#term-virtual-environment
+[virtual environment]: https://docs.python.org/3/glossary.html#term-virtual-environment
 [pip]: https://packaging.python.org/key_projects/#pip
-[venv]: https://docs.python.org/3.6/library/venv.html
+[venv]: https://docs.python.org/3/library/venv.html
 [Pipenv]: https://packaging.python.org/key_projects/#pipenv
 [conda]: https://packaging.python.org/key_projects/#conda
 [S3]: https://aws.amazon.com/s3/
