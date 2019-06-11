@@ -40,6 +40,7 @@ def generate_auth_headers(
 ) -> Dict[str, str]:
     # 参数验证
     http_verb = http_verb.strip().upper()
+    content_md5 = (content_md5 or '').strip()
     # Date
     date_text = http_format_date()
     # Canonical KssHeaders

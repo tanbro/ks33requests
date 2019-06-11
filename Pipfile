@@ -7,9 +7,10 @@ verify_ssl = true
 ks33requests = {editable = true,path = "."}
 setuptools-scm = "*"
 setuptools-scm-git-archive = "*"
-jupyter = "*"
 generateds = "*"
 python-dotenv = "*"
+yapf = "*"
+jupyter = "*"
 
 [packages]
 

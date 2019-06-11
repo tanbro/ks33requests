@@ -18,41 +18,39 @@ cd ks33requests
 
 强烈建议在 [virtual environment] 中进行开发工作。
 
-### 使用标准库的[venv][]搭建开发环境
+- 如果用 [venv][]:
 
-使用标准库的[venv][]可执行模组直接新建名为`venv`的虚拟环境目录，然后将本项目以“开发模式”安装到这个环境：
+  使用标准库的[venv][]可执行模组直接新建名为`venv`的虚拟环境目录，然后将本项目以“开发模式”安装到这个环境：
 
-```bash
-path/to/python -m venv venv
-venv/bin/python setup.py develop
-```
+  ```bash
+  path/to/python -m venv venv
+  venv/bin/python setup.py develop
+  ```
 
-### 使用[Pipenv][]搭建开发环境
+-### Pipenv
 
-这是最为推荐的方式！
+使用 [Pipenv][] 直接安装:
 
 ```bash
 pipenv install --dev
 ```
 
-### 使用[conda][]搭建开发环境
+### conda
 
-这个项目还没有为[conda][]专门准备`environment.yml`文件，故不推荐。
-
-使用[conda]新建一个专用于这个项目的、名为`ks33requests`的环境，然后激活它，将本项目以“开发模式”安装到这个环境：
+使用 [conda][] 从配置文件新建一个专用于这个项目的、名为`ks33requests-dev`的环境，然后激活它，将本项目以“开发模式”安装到这个环境：
 
 ```bash
-conda create --name ks33requests
-conda activate ks33requests
+conda env create -f environment.yml
+conda activate ks33requests-dev
 python setup.py develop
 ```
 
 ### XML Schema
 
-[金山云][][KS3][]的 WebAPI 数据结构有许多与[S3]兼容。
+[金山云][] [KS3][] 的 WebAPI 数据结构有许多与[S3]兼容。
 所以，这个项目直接使用考虑来自 <http://s3.amazonaws.com/doc/2006-03-01/AmazonS3.xsd> 的 Schema。
 
-我们使用[generateDS]工具，从`xsd`文件生成[Python][]类型定义：
+我们使用 [generateDS][] 工具，从`xsd`文件生成 [Python][] 类型定义：
 
 ```bash
 mkdir -p schemas
