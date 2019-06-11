@@ -1,8 +1,14 @@
+import os
+
+from dotenv import load_dotenv
+
 from ks33requests.client import Client
 from ks33requests.errors import raise_for_ks3_status
 
-ak = 'AKLToyzMEPK6RuGHFWXC1nfxlg'
-sk = 'OBREz7VfDqvfqgjKJHPJl2+GKYwikVxJ3Z3jgn7CTB4JgdCfMCEt93BssvPouCbrEA=='
+load_dotenv()
+
+ak = os.environ['KS3_ACCESS_KEY']
+sk = os.environ['KS3_SECRET_KEY']
 # bucket_name = 'huameoi-newcutter-develop'
 endpoint = 'ks3-cn-shanghai.ksyun.com'
 

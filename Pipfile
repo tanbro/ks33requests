@@ -9,6 +9,7 @@ setuptools-scm = "*"
 setuptools-scm-git-archive = "*"
 jupyter = "*"
 generateds = "*"
+python-dotenv = "*"
 
 [packages]
 
