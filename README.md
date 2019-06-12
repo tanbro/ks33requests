@@ -1,5 +1,12 @@
 # ks33requests
 
+[![PyPI](https://img.shields.io/pypi/v/ks33requests.svg)](https://pypi.org/project/pyyaml-include/)
+[![PyPI - License](https://img.shields.io/pypi/l/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+[![PyPI - Format](https://img.shields.io/pypi/format/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+[![PyPI - Status](https://img.shields.io/pypi/status/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+[![PyPI - Implementation](https://img.shields.io/pypi/implementation/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+
 ## 概述
 
 一个很简单的、适用于 [金山云][] 对象存储([KS3][])的 [Python][]3 客户端。

@@ -18,14 +18,14 @@ cd ks33requests
 
 强烈建议在 [virtual environment] 中进行开发工作。
 
-- 如果使用 [venv][]+[pip][]:
+- 如果使用标准库:
 
-  使用标准库的[venv][]可执行模组直接新建名为`venv`的虚拟环境目录，然后将本项目以“开发模式”安装到这个环境，以及安装开发所需的包：
+  使用标准库的 [venv][] 与 [pip][] 直接新建名为`venv`的虚拟环境目录，将本项目以“开发模式”安装到这个环境，并安装开发所需的包：
 
   ```bash
-  path/to/python -m venv venv
+  path/of/your/python -m venv venv
   venv/bin/python setup.py develop
-  venv/bin/pip install -r requires/dev.txt
+  venv/bin/python -m pip install -r requires/dev.txt
   ```
 
 - 如果使用 [Pipenv][]:
