@@ -21,18 +21,18 @@
 #   ks33requests
 #
 
-import os
-import sys
-import re as re_
 import base64
 import datetime as datetime_
-import warnings as warnings_
 import decimal as decimal_
+import os
+import re as re_
+import sys
+import warnings as warnings_
+
 try:
     from lxml import etree as etree_
 except ImportError:
     from xml.etree import ElementTree as etree_
-
 
 Validate_simpletypes_ = True
 if sys.version_info.major == 2:
@@ -58,6 +58,7 @@ def parsexml_(infile, parser=None, **kwargs):
     doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
+
 def parsexmlstring_(instring, parser=None, **kwargs):
     if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
@@ -69,6 +70,7 @@ def parsexmlstring_(instring, parser=None, **kwargs):
             parser = etree_.XMLParser()
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
+
 
 #
 # Namespace prefix definition table (and other attributes, too)
@@ -134,44 +136,58 @@ except ImportError:
 try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
-    
+
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
+
         class _FixedOffsetTZ(datetime_.tzinfo):
             def __init__(self, offset, name):
                 self.__offset = datetime_.timedelta(minutes=offset)
                 self.__name = name
+
             def utcoffset(self, dt):
                 return self.__offset
+
             def tzname(self, dt):
                 return self.__name
+
             def dst(self, dt):
                 return None
+
         def gds_format_string(self, input_data, input_name=''):
             return input_data
+
         def gds_parse_string(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
             else:
                 return input_data
+
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data)
+
         def gds_validate_base64(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer(self, input_data, input_name=''):
             return '%d' % input_data
+
         def gds_parse_integer(self, input_data, node=None, input_name=''):
             try:
                 ival = int(input_data)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(node, 'requires integer: %s' % exp)
             return ival
+
         def gds_validate_integer(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_integer_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -181,22 +197,27 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of integers')
             return values
+
         def gds_format_float(self, input_data, input_name=''):
             return ('%.15f' % input_data).rstrip('0')
+
         def gds_parse_float(self, input_data, node=None, input_name=''):
             try:
                 fval_ = float(input_data)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(node, 'requires float or double: %s' % exp)
             return fval_
+
         def gds_validate_float(self, input_data, node=None, input_name=''):
             try:
                 value = float(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires sequence of floats')
             return value
+
         def gds_format_float_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_float_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -206,22 +227,27 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of floats')
             return values
+
         def gds_format_decimal(self, input_data, input_name=''):
             return ('%0.10f' % input_data).rstrip('0')
+
         def gds_parse_decimal(self, input_data, node=None, input_name=''):
             try:
                 decimal_.Decimal(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires decimal value')
             return input_data
+
         def gds_validate_decimal(self, input_data, node=None, input_name=''):
             try:
                 value = decimal_.Decimal(input_data)
             except (TypeError, ValueError):
                 raise_parse_error(node, 'Requires decimal value')
             return value
+
         def gds_format_decimal_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_decimal_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -231,18 +257,23 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of decimal values')
             return values
+
         def gds_format_double(self, input_data, input_name=''):
             return '%e' % input_data
+
         def gds_parse_double(self, input_data, node=None, input_name=''):
             try:
                 fval_ = float(input_data)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(node, 'requires float or double: %s' % exp)
             return fval_
+
         def gds_validate_double(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_double_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_double_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -252,8 +283,10 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of doubles')
             return values
+
         def gds_format_boolean(self, input_data, input_name=''):
             return ('%s' % input_data).lower()
+
         def gds_parse_boolean(self, input_data, node=None, input_name=''):
             if input_data in ('true', '1'):
                 bval = True
@@ -262,22 +295,27 @@ except ImportError as exp:
             else:
                 raise_parse_error(node, 'requires boolean')
             return bval
+
         def gds_validate_boolean(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_boolean_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_boolean_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
-                if value not in ('true', '1', 'false', '0', ):
+                if value not in ('true', '1', 'false', '0',):
                     raise_parse_error(
                         node,
                         'Requires sequence of booleans '
                         '("true", "1", "false", "0")')
             return values
+
         def gds_validate_datetime(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_datetime(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%04d-%02d-%02dT%02d:%02d:%02d' % (
@@ -314,6 +352,7 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         @classmethod
         def gds_parse_datetime(cls, input_data):
             tz = None
@@ -334,7 +373,7 @@ except ImportError as exp:
             if len(time_parts) > 1:
                 micro_seconds = int(float('0.' + time_parts[1]) * 1000000)
                 input_data = '%s.%s' % (
-                    time_parts[0], "{}".format(micro_seconds).rjust(6, "0"), )
+                    time_parts[0], "{}".format(micro_seconds).rjust(6, "0"),)
                 dt = datetime_.datetime.strptime(
                     input_data, '%Y-%m-%dT%H:%M:%S.%f')
             else:
@@ -342,8 +381,10 @@ except ImportError as exp:
                     input_data, '%Y-%m-%dT%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt
+
         def gds_validate_date(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_date(self, input_data, input_name=''):
             _svalue = '%04d-%02d-%02d' % (
                 input_data.year,
@@ -370,6 +411,7 @@ except ImportError as exp:
             except AttributeError:
                 pass
             return _svalue
+
         @classmethod
         def gds_parse_date(cls, input_data):
             tz = None
@@ -389,8 +431,10 @@ except ImportError as exp:
             dt = datetime_.datetime.strptime(input_data, '%Y-%m-%d')
             dt = dt.replace(tzinfo=tz)
             return dt.date()
+
         def gds_validate_time(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_time(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%02d:%02d:%02d' % (
@@ -421,6 +465,7 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         def gds_validate_simple_patterns(self, patterns, target):
             # pat is a list of lists of strings/patterns.
             # The target value must match at least one of the patterns
@@ -437,6 +482,7 @@ except ImportError as exp:
                     found1 = False
                     break
             return found1
+
         @classmethod
         def gds_parse_time(cls, input_data):
             tz = None
@@ -459,15 +505,19 @@ except ImportError as exp:
                 dt = datetime_.datetime.strptime(input_data, '%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt.time()
+
         def gds_str_lower(self, instring):
             return instring.lower()
+
         def get_path_(self, node):
             path_list = []
             self.get_path_list_(node, path_list)
             path_list.reverse()
             path = '/'.join(path_list)
             return path
+
         Tag_strip_pattern_ = re_.compile(r'\{.*\}')
+
         def get_path_list_(self, node, path_list):
             if node is None:
                 return
@@ -475,6 +525,7 @@ except ImportError as exp:
             if tag:
                 path_list.append(tag)
             self.get_path_list_(node.getparent(), path_list)
+
         def get_class_obj_(self, node, default_class=None):
             class_obj1 = default_class
             if 'xsi' in node.nsmap:
@@ -487,12 +538,15 @@ except ImportError as exp:
                     if class_obj2 is not None:
                         class_obj1 = class_obj2
             return class_obj1
+
         def gds_build_any(self, node, type_name=None):
             content = etree_.tostring(node, encoding="unicode")
             return content
+
         @classmethod
         def gds_reverse_node_mapping(cls, mapping):
             return dict(((v, k) for k, v in mapping.items()))
+
         @staticmethod
         def gds_encode(instring):
             if sys.version_info.major == 2:
@@ -503,6 +557,7 @@ except ImportError as exp:
                 return instring.encode(encoding)
             else:
                 return instring
+
         @staticmethod
         def convert_unicode(instring):
             if isinstance(instring, str):
@@ -512,24 +567,30 @@ except ImportError as exp:
             else:
                 result = GeneratedsSuper.gds_encode(str(instring))
             return result
+
         def __eq__(self, other):
             if type(self) != type(other):
                 return False
             return self.__dict__ == other.__dict__
+
         def __ne__(self, other):
             return not self.__eq__(other)
+
         # Django ETL transform hooks.
         def gds_djo_etl_transform(self):
             pass
+
         def gds_djo_etl_transform_db_obj(self, dbobj):
             pass
+
         # SQLAlchemy ETL transform hooks.
         def gds_sqa_etl_transform(self):
             return 0, None
+
         def gds_sqa_etl_transform_db_obj(self, dbobj):
             pass
-    
-    
+
+
     def getSubclassFromModule_(module, class_):
         '''Get the subclass of a class from a specific module.'''
         name = class_.__name__ + 'Sub'
@@ -537,7 +598,6 @@ except ImportError as exp:
             return getattr(module, name)
         else:
             return None
-
 
 #
 # If you have installed IPython you can uncomment and use the following.
@@ -567,6 +627,7 @@ CDATA_pattern_ = re_.compile(r"<!\[CDATA\[.*?\]\]>", re_.DOTALL)
 # Change this to redirect the generated superclass module to use a
 # specific subclass module.
 CurrentSubclassModule_ = None
+
 
 #
 # Support/utility functions.
@@ -656,7 +717,7 @@ def find_attr_value_(attr_name, node):
         prefix, name = attr_parts
         namespace = node.nsmap.get(prefix)
         if namespace is not None:
-            value = attrs.get('{%s}%s' % (namespace, name, ))
+            value = attrs.get('{%s}%s' % (namespace, name,))
     return value
 
 
@@ -666,7 +727,7 @@ class GDSParseError(Exception):
 
 def raise_parse_error(node, msg):
     if node is not None:
-        msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline, )
+        msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline,)
     raise GDSParseError(msg)
 
 
@@ -686,19 +747,25 @@ class MixedContainer:
     TypeDouble = 6
     TypeBoolean = 7
     TypeBase64 = 8
+
     def __init__(self, category, content_type, name, value):
         self.category = category
         self.content_type = content_type
         self.name = name
         self.value = value
+
     def getCategory(self):
         return self.category
+
     def getContenttype(self, content_type):
         return self.content_type
+
     def getValue(self):
         return self.value
+
     def getName(self):
         return self.name
+
     def export(self, outfile, level, name, namespace,
                pretty_print=True):
         if self.category == MixedContainer.CategoryText:
@@ -707,10 +774,11 @@ class MixedContainer:
                 outfile.write(self.value)
         elif self.category == MixedContainer.CategorySimple:
             self.exportSimple(outfile, level, name)
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             self.value.export(
                 outfile, level, namespace, name_=name,
                 pretty_print=pretty_print)
+
     def exportSimple(self, outfile, level, name):
         if self.content_type == MixedContainer.TypeString:
             outfile.write('<%s>%s</%s>' % (
@@ -731,6 +799,7 @@ class MixedContainer:
                 self.name,
                 base64.b64encode(self.value),
                 self.name))
+
     def to_etree(self, element):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
@@ -749,22 +818,24 @@ class MixedContainer:
             subelement = etree_.SubElement(
                 element, '%s' % self.name)
             subelement.text = self.to_etree_simple()
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             self.value.to_etree(element)
+
     def to_etree_simple(self):
         if self.content_type == MixedContainer.TypeString:
             text = self.value
         elif (self.content_type == MixedContainer.TypeInteger or
-                self.content_type == MixedContainer.TypeBoolean):
+              self.content_type == MixedContainer.TypeBoolean):
             text = '%d' % self.value
         elif (self.content_type == MixedContainer.TypeFloat or
-                self.content_type == MixedContainer.TypeDecimal):
+              self.content_type == MixedContainer.TypeDecimal):
             text = '%f' % self.value
         elif self.content_type == MixedContainer.TypeDouble:
             text = '%g' % self.value
         elif self.content_type == MixedContainer.TypeBase64:
             text = '%s' % base64.b64encode(self.value)
         return text
+
     def exportLiteral(self, outfile, level, name):
         if self.category == MixedContainer.CategoryText:
             showIndent(outfile, level)
@@ -778,7 +849,7 @@ class MixedContainer:
                 'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
                     self.category, self.content_type,
                     self.name, self.value))
-        else:    # category == MixedContainer.CategoryComplex
+        else:  # category == MixedContainer.CategoryComplex
             showIndent(outfile, level)
             outfile.write(
                 'model_.MixedContainer(%d, %d, "%s",\n' % (
@@ -790,17 +861,26 @@ class MixedContainer:
 
 class MemberSpec_(object):
     def __init__(self, name='', data_type='', container=0,
-            optional=0, child_attrs=None, choice=None):
+                 optional=0, child_attrs=None, choice=None):
         self.name = name
         self.data_type = data_type
         self.container = container
         self.child_attrs = child_attrs
         self.choice = choice
         self.optional = optional
-    def set_name(self, name): self.name = name
-    def get_name(self): return self.name
-    def set_data_type(self, data_type): self.data_type = data_type
-    def get_data_type_chain(self): return self.data_type
+
+    def set_name(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
+
+    def set_data_type(self, data_type):
+        self.data_type = data_type
+
+    def get_data_type_chain(self):
+        return self.data_type
+
     def get_data_type(self):
         if isinstance(self.data_type, list):
             if len(self.data_type) > 0:
@@ -809,14 +889,30 @@ class MemberSpec_(object):
                 return 'xs:string'
         else:
             return self.data_type
-    def set_container(self, container): self.container = container
-    def get_container(self): return self.container
-    def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
-    def get_child_attrs(self): return self.child_attrs
-    def set_choice(self, choice): self.choice = choice
-    def get_choice(self): return self.choice
-    def set_optional(self, optional): self.optional = optional
-    def get_optional(self): return self.optional
+
+    def set_container(self, container):
+        self.container = container
+
+    def get_container(self):
+        return self.container
+
+    def set_child_attrs(self, child_attrs):
+        self.child_attrs = child_attrs
+
+    def get_child_attrs(self):
+        return self.child_attrs
+
+    def set_choice(self, choice):
+        self.choice = choice
+
+    def get_choice(self):
+        return self.choice
+
+    def set_optional(self, optional):
+        self.optional = optional
+
+    def get_optional(self):
+        return self.optional
 
 
 def _cast(typ, value):
@@ -824,50 +920,53 @@ def _cast(typ, value):
         return value
     return typ(value)
 
+
 #
 # Data representation classes.
 #
 
 
 class MetadataDirective(Enum):
-    COPY='COPY'
-    REPLACE='REPLACE'
+    COPY = 'COPY'
+    REPLACE = 'REPLACE'
 
 
 class MfaDeleteStatus(Enum):
-    ENABLED='Enabled'
-    DISABLED='Disabled'
+    ENABLED = 'Enabled'
+    DISABLED = 'Disabled'
 
 
 class Payer(Enum):
-    BUCKET_OWNER='BucketOwner'
-    REQUESTER='Requester'
+    BUCKET_OWNER = 'BucketOwner'
+    REQUESTER = 'Requester'
 
 
 class Permission(Enum):
-    READ='READ'
-    WRITE='WRITE'
-    READ_ACP='READ_ACP'
-    WRITE_ACP='WRITE_ACP'
-    FULL_CONTROL='FULL_CONTROL'
+    READ = 'READ'
+    WRITE = 'WRITE'
+    READ_ACP = 'READ_ACP'
+    WRITE_ACP = 'WRITE_ACP'
+    FULL_CONTROL = 'FULL_CONTROL'
 
 
 class StorageClass(Enum):
-    STANDARD='STANDARD'
-    REDUCED_REDUNDANCY='REDUCED_REDUNDANCY'
-    GLACIER='GLACIER'
-    UNKNOWN='UNKNOWN'
+    STANDARD = 'STANDARD'
+    REDUCED_REDUNDANCY = 'REDUCED_REDUNDANCY'
+    GLACIER = 'GLACIER'
+    UNKNOWN = 'UNKNOWN'
 
 
 class VersioningStatus(Enum):
-    ENABLED='Enabled'
-    SUSPENDED='Suspended'
+    ENABLED = 'Enabled'
+    SUSPENDED = 'Suspended'
 
 
 class CreateBucket(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, AccessControlList=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, **kwargs_):
+
+    def __init__(self, Bucket=None, AccessControlList=None, AWSAccessKeyId=None, Timestamp=None, Signature=None,
+                 **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -879,6 +978,7 @@ class CreateBucket(GeneratedsSuper):
             initvalue_ = Timestamp
         self.Timestamp = initvalue_
         self.Signature = Signature
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -889,39 +989,54 @@ class CreateBucket(GeneratedsSuper):
             return CreateBucket.subclass(*args_, **kwargs_)
         else:
             return CreateBucket(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.AccessControlList is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None
+                self.Bucket is not None or
+                self.AccessControlList is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucket', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucket',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CreateBucket')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -932,37 +1047,49 @@ class CreateBucket(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CreateBucket')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucket', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CreateBucket'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucket', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucket',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -970,8 +1097,10 @@ class CreateBucket(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -997,17 +1126,21 @@ class CreateBucket(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Signature')
             value_ = self.gds_validate_string(value_, node, 'Signature')
             self.Signature = value_
+
+
 # end class CreateBucket
 
 
 class MetadataEntry(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Name=None, Value=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Name = Name
         self.Value = Value
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1018,24 +1151,33 @@ class MetadataEntry(GeneratedsSuper):
             return MetadataEntry.subclass(*args_, **kwargs_)
         else:
             return MetadataEntry(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Name(self):
         return self.Name
+
     def set_Name(self, Name):
         self.Name = Name
+
     def get_Value(self):
         return self.Value
+
     def set_Value(self, Value):
         self.Value = Value
+
     def hasContent_(self):
         if (
-            self.Name is not None or
-            self.Value is not None
+                self.Name is not None or
+                self.Value is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='MetadataEntry', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='MetadataEntry',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('MetadataEntry')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1046,29 +1188,38 @@ class MetadataEntry(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='MetadataEntry')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='MetadataEntry', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='MetadataEntry'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='MetadataEntry', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='MetadataEntry',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Name is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sName>%s</%sName>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespaceprefix_ , eol_))
+            outfile.write('<%sName>%s</%sName>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')),
+            namespaceprefix_, eol_))
         if self.Value is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sValue>%s</%sValue>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Value), input_name='Value')), namespaceprefix_ , eol_))
+            outfile.write('<%sValue>%s</%sValue>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Value), input_name='Value')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1076,8 +1227,10 @@ class MetadataEntry(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Name':
             value_ = child_.text
@@ -1089,16 +1242,20 @@ class MetadataEntry(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Value')
             value_ = self.gds_validate_string(value_, node, 'Value')
             self.Value = value_
+
+
 # end class MetadataEntry
 
 
 class CreateBucketResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, CreateBucketReturn=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.CreateBucketReturn = CreateBucketReturn
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1109,19 +1266,26 @@ class CreateBucketResponse(GeneratedsSuper):
             return CreateBucketResponse.subclass(*args_, **kwargs_)
         else:
             return CreateBucketResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_CreateBucketReturn(self):
         return self.CreateBucketReturn
+
     def set_CreateBucketReturn(self, CreateBucketReturn):
         self.CreateBucketReturn = CreateBucketReturn
+
     def hasContent_(self):
         if (
-            self.CreateBucketReturn is not None
+                self.CreateBucketReturn is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CreateBucketResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1132,25 +1296,32 @@ class CreateBucketResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CreateBucketResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucketResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucketResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CreateBucketResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='CreateBucketResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.CreateBucketReturn is not None:
-            self.CreateBucketReturn.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CreateBucketReturn', pretty_print=pretty_print)
+            self.CreateBucketReturn.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                           name_='CreateBucketReturn', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1158,25 +1329,31 @@ class CreateBucketResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'CreateBucketReturn':
             obj_ = CreateBucketResult.factory(parent_object_=self)
             obj_.build(child_)
             self.CreateBucketReturn = obj_
             obj_.original_tagname_ = 'CreateBucketReturn'
+
+
 # end class CreateBucketResponse
 
 
 class Status(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Code=None, Description=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Code = Code
         self.Description = Description
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1187,24 +1364,32 @@ class Status(GeneratedsSuper):
             return Status.subclass(*args_, **kwargs_)
         else:
             return Status(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Code(self):
         return self.Code
+
     def set_Code(self, Code):
         self.Code = Code
+
     def get_Description(self):
         return self.Description
+
     def set_Description(self, Description):
         self.Description = Description
+
     def hasContent_(self):
         if (
-            self.Code is not None or
-            self.Description is not None
+                self.Code is not None or
+                self.Description is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Status', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Status', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('Status')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1215,29 +1400,36 @@ class Status(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Status')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='Status', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='Status'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Status', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Status',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Code is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCode>%s</%sCode>%s' % (namespaceprefix_ , self.gds_format_integer(self.Code, input_name='Code'), namespaceprefix_ , eol_))
+            outfile.write('<%sCode>%s</%sCode>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.Code, input_name='Code'), namespaceprefix_, eol_))
         if self.Description is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDescription>%s</%sDescription>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Description), input_name='Description')), namespaceprefix_ , eol_))
+            outfile.write('<%sDescription>%s</%sDescription>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Description), input_name='Description')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1245,8 +1437,10 @@ class Status(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Code' and child_.text:
             sval_ = child_.text
@@ -1258,17 +1452,21 @@ class Status(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Description')
             value_ = self.gds_validate_string(value_, node, 'Description')
             self.Description = value_
+
+
 # end class Status
 
 
 class Result(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Status=None, extensiontype_=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Status = Status
         self.extensiontype_ = extensiontype_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1279,21 +1477,31 @@ class Result(GeneratedsSuper):
             return Result.subclass(*args_, **kwargs_)
         else:
             return Result(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Status(self):
         return self.Status
+
     def set_Status(self, Status):
         self.Status = Status
-    def get_extensiontype_(self): return self.extensiontype_
-    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+
+    def get_extensiontype_(self):
+        return self.extensiontype_
+
+    def set_extensiontype_(self, extensiontype_):
+        self.extensiontype_ = extensiontype_
+
     def hasContent_(self):
         if (
-            self.Status is not None
+                self.Status is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Result', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Result', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('Result')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1304,16 +1512,17 @@ class Result(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Result')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='Result', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='Result'):
         if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
@@ -1324,13 +1533,18 @@ class Result(GeneratedsSuper):
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Result', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Result',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Status is not None:
-            self.Status.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Status', pretty_print=pretty_print)
+            self.Status.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Status',
+                               pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1338,27 +1552,33 @@ class Result(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('xsi:type', node)
         if value is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
             self.extensiontype_ = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Status':
             obj_ = Status.factory(parent_object_=self)
             obj_.build(child_)
             self.Status = obj_
             obj_.original_tagname_ = 'Status'
+
+
 # end class Result
 
 
 class CreateBucketResult(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, BucketName=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.BucketName = BucketName
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1369,19 +1589,26 @@ class CreateBucketResult(GeneratedsSuper):
             return CreateBucketResult.subclass(*args_, **kwargs_)
         else:
             return CreateBucketResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_BucketName(self):
         return self.BucketName
+
     def set_BucketName(self, BucketName):
         self.BucketName = BucketName
+
     def hasContent_(self):
         if (
-            self.BucketName is not None
+                self.BucketName is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CreateBucketResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1392,26 +1619,33 @@ class CreateBucketResult(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CreateBucketResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucketResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucketResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CreateBucketResult'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResult', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketResult',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.BucketName is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucketName>%s</%sBucketName>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.BucketName), input_name='BucketName')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucketName>%s</%sBucketName>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.BucketName), input_name='BucketName')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1419,20 +1653,25 @@ class CreateBucketResult(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'BucketName':
             value_ = child_.text
             value_ = self.gds_parse_string(value_, node, 'BucketName')
             value_ = self.gds_validate_string(value_, node, 'BucketName')
             self.BucketName = value_
+
+
 # end class CreateBucketResult
 
 
 class DeleteBucket(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Bucket=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -1445,6 +1684,7 @@ class DeleteBucket(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1455,39 +1695,54 @@ class DeleteBucket(GeneratedsSuper):
             return DeleteBucket.subclass(*args_, **kwargs_)
         else:
             return DeleteBucket(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucket', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucket',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DeleteBucket')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1498,38 +1753,50 @@ class DeleteBucket(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='DeleteBucket')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteBucket', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='DeleteBucket'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucket', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucket',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1537,8 +1804,10 @@ class DeleteBucket(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -1564,16 +1833,20 @@ class DeleteBucket(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class DeleteBucket
 
 
 class DeleteBucketResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, DeleteBucketResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.DeleteBucketResponse = DeleteBucketResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1584,19 +1857,26 @@ class DeleteBucketResponse(GeneratedsSuper):
             return DeleteBucketResponse.subclass(*args_, **kwargs_)
         else:
             return DeleteBucketResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_DeleteBucketResponse(self):
         return self.DeleteBucketResponse
+
     def set_DeleteBucketResponse(self, DeleteBucketResponse):
         self.DeleteBucketResponse = DeleteBucketResponse
+
     def hasContent_(self):
         if (
-            self.DeleteBucketResponse is not None
+                self.DeleteBucketResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucketResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucketResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DeleteBucketResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1607,25 +1887,32 @@ class DeleteBucketResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='DeleteBucketResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteBucketResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteBucketResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='DeleteBucketResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteBucketResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='DeleteBucketResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.DeleteBucketResponse is not None:
-            self.DeleteBucketResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='DeleteBucketResponse', pretty_print=pretty_print)
+            self.DeleteBucketResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                             name_='DeleteBucketResponse', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1633,24 +1920,30 @@ class DeleteBucketResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'DeleteBucketResponse':
             obj_ = Status.factory(parent_object_=self)
             obj_.build(child_)
             self.DeleteBucketResponse = obj_
             obj_.original_tagname_ = 'DeleteBucketResponse'
+
+
 # end class DeleteBucketResponse
 
 
 class BucketLoggingStatus(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, LoggingEnabled=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.LoggingEnabled = LoggingEnabled
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1661,19 +1954,26 @@ class BucketLoggingStatus(GeneratedsSuper):
             return BucketLoggingStatus.subclass(*args_, **kwargs_)
         else:
             return BucketLoggingStatus(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_LoggingEnabled(self):
         return self.LoggingEnabled
+
     def set_LoggingEnabled(self, LoggingEnabled):
         self.LoggingEnabled = LoggingEnabled
+
     def hasContent_(self):
         if (
-            self.LoggingEnabled is not None
+                self.LoggingEnabled is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='BucketLoggingStatus', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='BucketLoggingStatus',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('BucketLoggingStatus')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1684,25 +1984,32 @@ class BucketLoggingStatus(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='BucketLoggingStatus')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='BucketLoggingStatus', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='BucketLoggingStatus',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='BucketLoggingStatus'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='BucketLoggingStatus', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='BucketLoggingStatus',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.LoggingEnabled is not None:
-            self.LoggingEnabled.export(outfile, level, namespaceprefix_, namespacedef_='', name_='LoggingEnabled', pretty_print=pretty_print)
+            self.LoggingEnabled.export(outfile, level, namespaceprefix_, namespacedef_='', name_='LoggingEnabled',
+                                       pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1710,26 +2017,32 @@ class BucketLoggingStatus(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'LoggingEnabled':
             obj_ = LoggingSettings.factory(parent_object_=self)
             obj_.build(child_)
             self.LoggingEnabled = obj_
             obj_.original_tagname_ = 'LoggingEnabled'
+
+
 # end class BucketLoggingStatus
 
 
 class LoggingSettings(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, TargetBucket=None, TargetPrefix=None, TargetGrants=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.TargetBucket = TargetBucket
         self.TargetPrefix = TargetPrefix
         self.TargetGrants = TargetGrants
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1740,29 +2053,40 @@ class LoggingSettings(GeneratedsSuper):
             return LoggingSettings.subclass(*args_, **kwargs_)
         else:
             return LoggingSettings(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_TargetBucket(self):
         return self.TargetBucket
+
     def set_TargetBucket(self, TargetBucket):
         self.TargetBucket = TargetBucket
+
     def get_TargetPrefix(self):
         return self.TargetPrefix
+
     def set_TargetPrefix(self, TargetPrefix):
         self.TargetPrefix = TargetPrefix
+
     def get_TargetGrants(self):
         return self.TargetGrants
+
     def set_TargetGrants(self, TargetGrants):
         self.TargetGrants = TargetGrants
+
     def hasContent_(self):
         if (
-            self.TargetBucket is not None or
-            self.TargetPrefix is not None or
-            self.TargetGrants is not None
+                self.TargetBucket is not None or
+                self.TargetPrefix is not None or
+                self.TargetGrants is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LoggingSettings', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LoggingSettings',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('LoggingSettings')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1773,31 +2097,42 @@ class LoggingSettings(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='LoggingSettings')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='LoggingSettings', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='LoggingSettings',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='LoggingSettings'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LoggingSettings', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LoggingSettings',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.TargetBucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetBucket>%s</%sTargetBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.TargetBucket), input_name='TargetBucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sTargetBucket>%s</%sTargetBucket>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.TargetBucket), input_name='TargetBucket')), namespaceprefix_,
+                                                                     eol_))
         if self.TargetPrefix is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetPrefix>%s</%sTargetPrefix>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.TargetPrefix), input_name='TargetPrefix')), namespaceprefix_ , eol_))
+            outfile.write('<%sTargetPrefix>%s</%sTargetPrefix>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.TargetPrefix), input_name='TargetPrefix')), namespaceprefix_,
+                                                                     eol_))
         if self.TargetGrants is not None:
-            self.TargetGrants.export(outfile, level, namespaceprefix_, namespacedef_='', name_='TargetGrants', pretty_print=pretty_print)
+            self.TargetGrants.export(outfile, level, namespaceprefix_, namespacedef_='', name_='TargetGrants',
+                                     pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1805,8 +2140,10 @@ class LoggingSettings(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TargetBucket':
             value_ = child_.text
@@ -1823,12 +2160,15 @@ class LoggingSettings(GeneratedsSuper):
             obj_.build(child_)
             self.TargetGrants = obj_
             obj_.original_tagname_ = 'TargetGrants'
+
+
 # end class LoggingSettings
 
 
 class GetBucketLoggingStatus(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Bucket=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -1841,6 +2181,7 @@ class GetBucketLoggingStatus(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1851,39 +2192,54 @@ class GetBucketLoggingStatus(GeneratedsSuper):
             return GetBucketLoggingStatus.subclass(*args_, **kwargs_)
         else:
             return GetBucketLoggingStatus(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketLoggingStatus', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketLoggingStatus',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetBucketLoggingStatus')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -1894,38 +2250,51 @@ class GetBucketLoggingStatus(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetBucketLoggingStatus')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketLoggingStatus', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketLoggingStatus',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetBucketLoggingStatus'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketLoggingStatus', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetBucketLoggingStatus', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1933,8 +2302,10 @@ class GetBucketLoggingStatus(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -1960,16 +2331,20 @@ class GetBucketLoggingStatus(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class GetBucketLoggingStatus
 
 
 class GetBucketLoggingStatusResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, GetBucketLoggingStatusResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.GetBucketLoggingStatusResponse = GetBucketLoggingStatusResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1980,19 +2355,26 @@ class GetBucketLoggingStatusResponse(GeneratedsSuper):
             return GetBucketLoggingStatusResponse.subclass(*args_, **kwargs_)
         else:
             return GetBucketLoggingStatusResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_GetBucketLoggingStatusResponse(self):
         return self.GetBucketLoggingStatusResponse
+
     def set_GetBucketLoggingStatusResponse(self, GetBucketLoggingStatusResponse):
         self.GetBucketLoggingStatusResponse = GetBucketLoggingStatusResponse
+
     def hasContent_(self):
         if (
-            self.GetBucketLoggingStatusResponse is not None
+                self.GetBucketLoggingStatusResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketLoggingStatusResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='GetBucketLoggingStatusResponse', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetBucketLoggingStatusResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2003,25 +2385,35 @@ class GetBucketLoggingStatusResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetBucketLoggingStatusResponse')
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                              name_='GetBucketLoggingStatusResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketLoggingStatusResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketLoggingStatusResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetBucketLoggingStatusResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='GetBucketLoggingStatusResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketLoggingStatusResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetBucketLoggingStatusResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.GetBucketLoggingStatusResponse is not None:
-            self.GetBucketLoggingStatusResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetBucketLoggingStatusResponse', pretty_print=pretty_print)
+            self.GetBucketLoggingStatusResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                                       name_='GetBucketLoggingStatusResponse',
+                                                       pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2029,21 +2421,27 @@ class GetBucketLoggingStatusResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GetBucketLoggingStatusResponse':
             obj_ = BucketLoggingStatus.factory(parent_object_=self)
             obj_.build(child_)
             self.GetBucketLoggingStatusResponse = obj_
             obj_.original_tagname_ = 'GetBucketLoggingStatusResponse'
+
+
 # end class GetBucketLoggingStatusResponse
 
 
 class SetBucketLoggingStatus(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, BucketLoggingStatus=None, **kwargs_):
+
+    def __init__(self, Bucket=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None,
+                 BucketLoggingStatus=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -2056,6 +2454,7 @@ class SetBucketLoggingStatus(GeneratedsSuper):
         self.Signature = Signature
         self.Credential = Credential
         self.BucketLoggingStatus = BucketLoggingStatus
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2066,44 +2465,61 @@ class SetBucketLoggingStatus(GeneratedsSuper):
             return SetBucketLoggingStatus.subclass(*args_, **kwargs_)
         else:
             return SetBucketLoggingStatus(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def get_BucketLoggingStatus(self):
         return self.BucketLoggingStatus
+
     def set_BucketLoggingStatus(self, BucketLoggingStatus):
         self.BucketLoggingStatus = BucketLoggingStatus
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None or
-            self.BucketLoggingStatus is not None
+                self.Bucket is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None or
+                self.BucketLoggingStatus is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketLoggingStatus', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketLoggingStatus',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('SetBucketLoggingStatus')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2114,40 +2530,54 @@ class SetBucketLoggingStatus(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SetBucketLoggingStatus')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketLoggingStatus', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketLoggingStatus',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SetBucketLoggingStatus'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketLoggingStatus', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='SetBucketLoggingStatus', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
         if self.BucketLoggingStatus is not None:
-            self.BucketLoggingStatus.export(outfile, level, namespaceprefix_, namespacedef_='', name_='BucketLoggingStatus', pretty_print=pretty_print)
+            self.BucketLoggingStatus.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                            name_='BucketLoggingStatus', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2155,8 +2585,10 @@ class SetBucketLoggingStatus(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -2187,15 +2619,19 @@ class SetBucketLoggingStatus(GeneratedsSuper):
             obj_.build(child_)
             self.BucketLoggingStatus = obj_
             obj_.original_tagname_ = 'BucketLoggingStatus'
+
+
 # end class SetBucketLoggingStatus
 
 
 class SetBucketLoggingStatusResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2206,7 +2642,9 @@ class SetBucketLoggingStatusResponse(GeneratedsSuper):
             return SetBucketLoggingStatusResponse.subclass(*args_, **kwargs_)
         else:
             return SetBucketLoggingStatusResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def hasContent_(self):
         if (
 
@@ -2214,7 +2652,10 @@ class SetBucketLoggingStatusResponse(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketLoggingStatusResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='SetBucketLoggingStatusResponse', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('SetBucketLoggingStatusResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2225,19 +2666,27 @@ class SetBucketLoggingStatusResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SetBucketLoggingStatusResponse')
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                              name_='SetBucketLoggingStatusResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketLoggingStatusResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketLoggingStatusResponse',
+                                pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SetBucketLoggingStatusResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='SetBucketLoggingStatusResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketLoggingStatusResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='SetBucketLoggingStatusResponse', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2245,17 +2694,23 @@ class SetBucketLoggingStatusResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class SetBucketLoggingStatusResponse
 
 
 class GetObjectAccessControlPolicy(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None,
+                 **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -2268,6 +2723,7 @@ class GetObjectAccessControlPolicy(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2278,44 +2734,61 @@ class GetObjectAccessControlPolicy(GeneratedsSuper):
             return GetObjectAccessControlPolicy.subclass(*args_, **kwargs_)
         else:
             return GetObjectAccessControlPolicy(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectAccessControlPolicy', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='GetObjectAccessControlPolicy', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObjectAccessControlPolicy')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2326,41 +2799,57 @@ class GetObjectAccessControlPolicy(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectAccessControlPolicy')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectAccessControlPolicy', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectAccessControlPolicy',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObjectAccessControlPolicy'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='GetObjectAccessControlPolicy'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectAccessControlPolicy', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetObjectAccessControlPolicy', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2368,8 +2857,10 @@ class GetObjectAccessControlPolicy(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -2400,16 +2891,20 @@ class GetObjectAccessControlPolicy(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class GetObjectAccessControlPolicy
 
 
 class GetObjectAccessControlPolicyResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, GetObjectAccessControlPolicyResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.GetObjectAccessControlPolicyResponse = GetObjectAccessControlPolicyResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2420,19 +2915,26 @@ class GetObjectAccessControlPolicyResponse(GeneratedsSuper):
             return GetObjectAccessControlPolicyResponse.subclass(*args_, **kwargs_)
         else:
             return GetObjectAccessControlPolicyResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_GetObjectAccessControlPolicyResponse(self):
         return self.GetObjectAccessControlPolicyResponse
+
     def set_GetObjectAccessControlPolicyResponse(self, GetObjectAccessControlPolicyResponse):
         self.GetObjectAccessControlPolicyResponse = GetObjectAccessControlPolicyResponse
+
     def hasContent_(self):
         if (
-            self.GetObjectAccessControlPolicyResponse is not None
+                self.GetObjectAccessControlPolicyResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectAccessControlPolicyResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='GetObjectAccessControlPolicyResponse', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObjectAccessControlPolicyResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2443,25 +2945,35 @@ class GetObjectAccessControlPolicyResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectAccessControlPolicyResponse')
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                              name_='GetObjectAccessControlPolicyResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectAccessControlPolicyResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectAccessControlPolicyResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObjectAccessControlPolicyResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='GetObjectAccessControlPolicyResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetObjectAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.GetObjectAccessControlPolicyResponse is not None:
-            self.GetObjectAccessControlPolicyResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetObjectAccessControlPolicyResponse', pretty_print=pretty_print)
+            self.GetObjectAccessControlPolicyResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                                             name_='GetObjectAccessControlPolicyResponse',
+                                                             pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2469,20 +2981,25 @@ class GetObjectAccessControlPolicyResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GetObjectAccessControlPolicyResponse':
             obj_ = AccessControlPolicy.factory(parent_object_=self)
             obj_.build(child_)
             self.GetObjectAccessControlPolicyResponse = obj_
             obj_.original_tagname_ = 'GetObjectAccessControlPolicyResponse'
+
+
 # end class GetObjectAccessControlPolicyResponse
 
 
 class GetBucketAccessControlPolicy(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Bucket=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -2495,6 +3012,7 @@ class GetBucketAccessControlPolicy(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2505,39 +3023,54 @@ class GetBucketAccessControlPolicy(GeneratedsSuper):
             return GetBucketAccessControlPolicy.subclass(*args_, **kwargs_)
         else:
             return GetBucketAccessControlPolicy(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketAccessControlPolicy', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='GetBucketAccessControlPolicy', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetBucketAccessControlPolicy')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2548,38 +3081,52 @@ class GetBucketAccessControlPolicy(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetBucketAccessControlPolicy')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketAccessControlPolicy', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketAccessControlPolicy',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetBucketAccessControlPolicy'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='GetBucketAccessControlPolicy'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketAccessControlPolicy', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetBucketAccessControlPolicy', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2587,8 +3134,10 @@ class GetBucketAccessControlPolicy(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -2614,16 +3163,20 @@ class GetBucketAccessControlPolicy(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class GetBucketAccessControlPolicy
 
 
 class GetBucketAccessControlPolicyResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, GetBucketAccessControlPolicyResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.GetBucketAccessControlPolicyResponse = GetBucketAccessControlPolicyResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2634,19 +3187,26 @@ class GetBucketAccessControlPolicyResponse(GeneratedsSuper):
             return GetBucketAccessControlPolicyResponse.subclass(*args_, **kwargs_)
         else:
             return GetBucketAccessControlPolicyResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_GetBucketAccessControlPolicyResponse(self):
         return self.GetBucketAccessControlPolicyResponse
+
     def set_GetBucketAccessControlPolicyResponse(self, GetBucketAccessControlPolicyResponse):
         self.GetBucketAccessControlPolicyResponse = GetBucketAccessControlPolicyResponse
+
     def hasContent_(self):
         if (
-            self.GetBucketAccessControlPolicyResponse is not None
+                self.GetBucketAccessControlPolicyResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketAccessControlPolicyResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='GetBucketAccessControlPolicyResponse', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetBucketAccessControlPolicyResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2657,25 +3217,35 @@ class GetBucketAccessControlPolicyResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetBucketAccessControlPolicyResponse')
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                              name_='GetBucketAccessControlPolicyResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketAccessControlPolicyResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetBucketAccessControlPolicyResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetBucketAccessControlPolicyResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='GetBucketAccessControlPolicyResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetBucketAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetBucketAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.GetBucketAccessControlPolicyResponse is not None:
-            self.GetBucketAccessControlPolicyResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetBucketAccessControlPolicyResponse', pretty_print=pretty_print)
+            self.GetBucketAccessControlPolicyResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                                             name_='GetBucketAccessControlPolicyResponse',
+                                                             pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2683,24 +3253,30 @@ class GetBucketAccessControlPolicyResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GetBucketAccessControlPolicyResponse':
             obj_ = AccessControlPolicy.factory(parent_object_=self)
             obj_.build(child_)
             self.GetBucketAccessControlPolicyResponse = obj_
             obj_.original_tagname_ = 'GetBucketAccessControlPolicyResponse'
+
+
 # end class GetBucketAccessControlPolicyResponse
 
 
 class Grantee(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, extensiontype_=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.extensiontype_ = extensiontype_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2711,9 +3287,15 @@ class Grantee(GeneratedsSuper):
             return Grantee.subclass(*args_, **kwargs_)
         else:
             return Grantee(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_extensiontype_(self): return self.extensiontype_
-    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+
+    def get_extensiontype_(self):
+        return self.extensiontype_
+
+    def set_extensiontype_(self, extensiontype_):
+        self.extensiontype_ = extensiontype_
+
     def hasContent_(self):
         if (
 
@@ -2721,7 +3303,9 @@ class Grantee(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grantee', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grantee', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('Grantee')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2732,15 +3316,16 @@ class Grantee(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Grantee')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='Grantee', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='Grantee'):
         if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
@@ -2751,8 +3336,12 @@ class Grantee(GeneratedsSuper):
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grantee', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grantee',
+                       fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2760,24 +3349,30 @@ class Grantee(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('xsi:type', node)
         if value is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
             self.extensiontype_ = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class Grantee
 
 
 class User(Grantee):
     subclass = None
     superclass = Grantee
+
     def __init__(self, extensiontype_=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        super(User, self).__init__(extensiontype_,  **kwargs_)
+        super(User, self).__init__(extensiontype_, **kwargs_)
         self.extensiontype_ = extensiontype_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2788,17 +3383,25 @@ class User(Grantee):
             return User.subclass(*args_, **kwargs_)
         else:
             return User(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_extensiontype_(self): return self.extensiontype_
-    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+
+    def get_extensiontype_(self):
+        return self.extensiontype_
+
+    def set_extensiontype_(self, extensiontype_):
+        self.extensiontype_ = extensiontype_
+
     def hasContent_(self):
         if (
-            super(User, self).hasContent_()
+                super(User, self).hasContent_()
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='User', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='User', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('User')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2809,15 +3412,16 @@ class User(Grantee):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='User')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='User', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='User'):
         super(User, self).exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='User')
         if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
@@ -2828,9 +3432,14 @@ class User(Grantee):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='User', fromsubclass_=False, pretty_print=True):
-        super(User, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='User',
+                       fromsubclass_=False, pretty_print=True):
+        super(User, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True,
+                                         pretty_print=pretty_print)
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2838,26 +3447,32 @@ class User(Grantee):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('xsi:type', node)
         if value is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
             self.extensiontype_ = value
         super(User, self).buildAttributes(node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         super(User, self).buildChildren(child_, node, nodeName_, True)
         pass
+
+
 # end class User
 
 
 class AmazonCustomerByEmail(User):
     subclass = None
     superclass = User
+
     def __init__(self, EmailAddress=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        super(AmazonCustomerByEmail, self).__init__( **kwargs_)
+        super(AmazonCustomerByEmail, self).__init__(**kwargs_)
         self.EmailAddress = EmailAddress
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2868,20 +3483,27 @@ class AmazonCustomerByEmail(User):
             return AmazonCustomerByEmail.subclass(*args_, **kwargs_)
         else:
             return AmazonCustomerByEmail(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_EmailAddress(self):
         return self.EmailAddress
+
     def set_EmailAddress(self, EmailAddress):
         self.EmailAddress = EmailAddress
+
     def hasContent_(self):
         if (
-            self.EmailAddress is not None or
-            super(AmazonCustomerByEmail, self).hasContent_()
+                self.EmailAddress is not None or
+                super(AmazonCustomerByEmail, self).hasContent_()
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AmazonCustomerByEmail', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AmazonCustomerByEmail',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('AmazonCustomerByEmail')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2892,27 +3514,37 @@ class AmazonCustomerByEmail(User):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='AmazonCustomerByEmail')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='AmazonCustomerByEmail', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='AmazonCustomerByEmail',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='AmazonCustomerByEmail'):
-        super(AmazonCustomerByEmail, self).exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='AmazonCustomerByEmail')
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AmazonCustomerByEmail', fromsubclass_=False, pretty_print=True):
-        super(AmazonCustomerByEmail, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        super(AmazonCustomerByEmail, self).exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                                                            name_='AmazonCustomerByEmail')
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='AmazonCustomerByEmail', fromsubclass_=False, pretty_print=True):
+        super(AmazonCustomerByEmail, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True,
+                                                          pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.EmailAddress is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEmailAddress>%s</%sEmailAddress>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.EmailAddress), input_name='EmailAddress')), namespaceprefix_ , eol_))
+            outfile.write('<%sEmailAddress>%s</%sEmailAddress>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.EmailAddress), input_name='EmailAddress')), namespaceprefix_,
+                                                                     eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2920,8 +3552,10 @@ class AmazonCustomerByEmail(User):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         super(AmazonCustomerByEmail, self).buildAttributes(node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'EmailAddress':
             value_ = child_.text
@@ -2929,18 +3563,22 @@ class AmazonCustomerByEmail(User):
             value_ = self.gds_validate_string(value_, node, 'EmailAddress')
             self.EmailAddress = value_
         super(AmazonCustomerByEmail, self).buildChildren(child_, node, nodeName_, True)
+
+
 # end class AmazonCustomerByEmail
 
 
 class CanonicalUser(User):
     subclass = None
     superclass = User
+
     def __init__(self, ID=None, DisplayName=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        super(CanonicalUser, self).__init__( **kwargs_)
+        super(CanonicalUser, self).__init__(**kwargs_)
         self.ID = ID
         self.DisplayName = DisplayName
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2951,25 +3589,34 @@ class CanonicalUser(User):
             return CanonicalUser.subclass(*args_, **kwargs_)
         else:
             return CanonicalUser(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ID(self):
         return self.ID
+
     def set_ID(self, ID):
         self.ID = ID
+
     def get_DisplayName(self):
         return self.DisplayName
+
     def set_DisplayName(self, DisplayName):
         self.DisplayName = DisplayName
+
     def hasContent_(self):
         if (
-            self.ID is not None or
-            self.DisplayName is not None or
-            super(CanonicalUser, self).hasContent_()
+                self.ID is not None or
+                self.DisplayName is not None or
+                super(CanonicalUser, self).hasContent_()
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CanonicalUser', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CanonicalUser',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CanonicalUser')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -2980,30 +3627,40 @@ class CanonicalUser(User):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CanonicalUser')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CanonicalUser', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CanonicalUser'):
-        super(CanonicalUser, self).exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CanonicalUser')
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CanonicalUser', fromsubclass_=False, pretty_print=True):
-        super(CanonicalUser, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        super(CanonicalUser, self).exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                                                    name_='CanonicalUser')
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CanonicalUser',
+                       fromsubclass_=False, pretty_print=True):
+        super(CanonicalUser, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True,
+                                                  pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ID), input_name='ID')), namespaceprefix_ , eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ID), input_name='ID')),
+            namespaceprefix_, eol_))
         if self.DisplayName is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDisplayName>%s</%sDisplayName>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.DisplayName), input_name='DisplayName')), namespaceprefix_ , eol_))
+            outfile.write('<%sDisplayName>%s</%sDisplayName>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.DisplayName), input_name='DisplayName')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3011,8 +3668,10 @@ class CanonicalUser(User):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         super(CanonicalUser, self).buildAttributes(node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ID':
             value_ = child_.text
@@ -3025,17 +3684,21 @@ class CanonicalUser(User):
             value_ = self.gds_validate_string(value_, node, 'DisplayName')
             self.DisplayName = value_
         super(CanonicalUser, self).buildChildren(child_, node, nodeName_, True)
+
+
 # end class CanonicalUser
 
 
 class Group(Grantee):
     subclass = None
     superclass = Grantee
+
     def __init__(self, URI=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        super(Group, self).__init__( **kwargs_)
+        super(Group, self).__init__(**kwargs_)
         self.URI = URI
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3046,20 +3709,26 @@ class Group(Grantee):
             return Group.subclass(*args_, **kwargs_)
         else:
             return Group(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_URI(self):
         return self.URI
+
     def set_URI(self, URI):
         self.URI = URI
+
     def hasContent_(self):
         if (
-            self.URI is not None or
-            super(Group, self).hasContent_()
+                self.URI is not None or
+                super(Group, self).hasContent_()
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Group', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Group', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('Group')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3070,27 +3739,35 @@ class Group(Grantee):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Group')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='Group', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='Group'):
         super(Group, self).exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Group')
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Group', fromsubclass_=False, pretty_print=True):
-        super(Group, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Group',
+                       fromsubclass_=False, pretty_print=True):
+        super(Group, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True,
+                                          pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.URI is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURI>%s</%sURI>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.URI), input_name='URI')), namespaceprefix_ , eol_))
+            outfile.write('<%sURI>%s</%sURI>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.URI), input_name='URI')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3098,8 +3775,10 @@ class Group(Grantee):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         super(Group, self).buildAttributes(node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'URI':
             value_ = child_.text
@@ -3107,18 +3786,22 @@ class Group(Grantee):
             value_ = self.gds_validate_string(value_, node, 'URI')
             self.URI = value_
         super(Group, self).buildChildren(child_, node, nodeName_, True)
+
+
 # end class Group
 
 
 class Grant(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Grantee=None, Permission=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Grantee = Grantee
         self.Permission = Permission
         self.validate_Permission(self.Permission)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3129,19 +3812,26 @@ class Grant(GeneratedsSuper):
             return Grant.subclass(*args_, **kwargs_)
         else:
             return Grant(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Grantee(self):
         return self.Grantee
+
     def set_Grantee(self, Grantee):
         self.Grantee = Grantee
+
     def set_Grantee_with_type(self, value):
         self.Grantee = value
         value.original_tagname_ = 'Grantee'
         value.extensiontype_ = value.__class__.__name__
+
     def get_Permission(self):
         return self.Permission
+
     def set_Permission(self, Permission):
         self.Permission = Permission
+
     def validate_Permission(self, value):
         # Validate type Permission, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -3153,16 +3843,20 @@ class Grant(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Permission' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Permission' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Grantee is not None or
-            self.Permission is not None
+                self.Grantee is not None or
+                self.Permission is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grant', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grant', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('Grant')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3173,19 +3867,23 @@ class Grant(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Grant')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='Grant', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='Grant'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grant', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='Grant',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -3194,7 +3892,9 @@ class Grant(GeneratedsSuper):
             self.Grantee.export(outfile, level, namespaceprefix_, namespacedef_='', pretty_print=pretty_print)
         if self.Permission is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPermission>%s</%sPermission>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Permission), input_name='Permission')), namespaceprefix_ , eol_))
+            outfile.write('<%sPermission>%s</%sPermission>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Permission), input_name='Permission')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3202,8 +3902,10 @@ class Grant(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Grantee':
             type_name_ = child_.attrib.get(
@@ -3231,12 +3933,15 @@ class Grant(GeneratedsSuper):
             self.Permission = value_
             # validate type Permission
             self.validate_Permission(self.Permission)
+
+
 # end class Grant
 
 
 class AccessControlList(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Grant=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -3244,6 +3949,7 @@ class AccessControlList(GeneratedsSuper):
             self.Grant = []
         else:
             self.Grant = Grant
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3254,25 +3960,35 @@ class AccessControlList(GeneratedsSuper):
             return AccessControlList.subclass(*args_, **kwargs_)
         else:
             return AccessControlList(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Grant(self):
         return self.Grant
+
     def set_Grant(self, Grant):
         self.Grant = Grant
+
     def add_Grant(self, value):
         self.Grant.append(value)
+
     def insert_Grant_at(self, index, value):
         self.Grant.insert(index, value)
+
     def replace_Grant_at(self, index, value):
         self.Grant[index] = value
+
     def hasContent_(self):
         if (
-            self.Grant
+                self.Grant
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlList', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlList',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('AccessControlList')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3283,25 +3999,31 @@ class AccessControlList(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='AccessControlList')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='AccessControlList', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='AccessControlList',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='AccessControlList'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlList', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlList',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Grant_ in self.Grant:
             Grant_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Grant', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3309,24 +4031,30 @@ class AccessControlList(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Grant':
             obj_ = Grant.factory(parent_object_=self)
             obj_.build(child_)
             self.Grant.append(obj_)
             obj_.original_tagname_ = 'Grant'
+
+
 # end class AccessControlList
 
 
 class CreateBucketConfiguration(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, LocationConstraint=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.LocationConstraint = LocationConstraint
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3337,19 +4065,26 @@ class CreateBucketConfiguration(GeneratedsSuper):
             return CreateBucketConfiguration.subclass(*args_, **kwargs_)
         else:
             return CreateBucketConfiguration(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_LocationConstraint(self):
         return self.LocationConstraint
+
     def set_LocationConstraint(self, LocationConstraint):
         self.LocationConstraint = LocationConstraint
+
     def hasContent_(self):
         if (
-            self.LocationConstraint is not None
+                self.LocationConstraint is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketConfiguration', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketConfiguration',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CreateBucketConfiguration')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3360,25 +4095,33 @@ class CreateBucketConfiguration(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CreateBucketConfiguration')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucketConfiguration', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CreateBucketConfiguration',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CreateBucketConfiguration'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='CreateBucketConfiguration'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CreateBucketConfiguration', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='CreateBucketConfiguration', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.LocationConstraint is not None:
-            self.LocationConstraint.export(outfile, level, namespaceprefix_, namespacedef_='', name_='LocationConstraint', pretty_print=pretty_print)
+            self.LocationConstraint.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                           name_='LocationConstraint', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3386,24 +4129,30 @@ class CreateBucketConfiguration(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'LocationConstraint':
             obj_ = LocationConstraint.factory(parent_object_=self)
             obj_.build(child_)
             self.LocationConstraint = obj_
             obj_.original_tagname_ = 'LocationConstraint'
+
+
 # end class CreateBucketConfiguration
 
 
 class LocationConstraint(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, valueOf_=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.valueOf_ = valueOf_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3414,17 +4163,26 @@ class LocationConstraint(GeneratedsSuper):
             return LocationConstraint.subclass(*args_, **kwargs_)
         else:
             return LocationConstraint(*args_, **kwargs_)
+
     factory = staticmethod(factory)
-    def get_valueOf_(self): return self.valueOf_
-    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+
+    def get_valueOf_(self):
+        return self.valueOf_
+
+    def set_valueOf_(self, valueOf_):
+        self.valueOf_ = valueOf_
+
     def hasContent_(self):
         if (
-            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+                (1 if type(self.valueOf_) in [int, float] else self.valueOf_)
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LocationConstraint', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LocationConstraint',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('LocationConstraint')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3435,20 +4193,26 @@ class LocationConstraint(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='LocationConstraint')
         if self.hasContent_():
             outfile.write('>')
             outfile.write(self.convert_unicode(self.valueOf_))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='LocationConstraint', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='LocationConstraint',
+                                pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='LocationConstraint'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LocationConstraint', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='LocationConstraint',
+                       fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3457,21 +4221,27 @@ class LocationConstraint(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class LocationConstraint
 
 
 class AccessControlPolicy(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Owner=None, AccessControlList=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Owner = Owner
         self.AccessControlList = AccessControlList
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3482,24 +4252,33 @@ class AccessControlPolicy(GeneratedsSuper):
             return AccessControlPolicy.subclass(*args_, **kwargs_)
         else:
             return AccessControlPolicy(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Owner(self):
         return self.Owner
+
     def set_Owner(self, Owner):
         self.Owner = Owner
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def hasContent_(self):
         if (
-            self.Owner is not None or
-            self.AccessControlList is not None
+                self.Owner is not None or
+                self.AccessControlList is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlPolicy', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlPolicy',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('AccessControlPolicy')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3510,27 +4289,35 @@ class AccessControlPolicy(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='AccessControlPolicy')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='AccessControlPolicy', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='AccessControlPolicy',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='AccessControlPolicy'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlPolicy', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='AccessControlPolicy',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Owner is not None:
-            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner', pretty_print=pretty_print)
+            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner',
+                              pretty_print=pretty_print)
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3538,8 +4325,10 @@ class AccessControlPolicy(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Owner':
             obj_ = CanonicalUser.factory(parent_object_=self)
@@ -3551,13 +4340,17 @@ class AccessControlPolicy(GeneratedsSuper):
             obj_.build(child_)
             self.AccessControlList = obj_
             obj_.original_tagname_ = 'AccessControlList'
+
+
 # end class AccessControlPolicy
 
 
 class SetObjectAccessControlPolicy(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, AccessControlList=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, AccessControlList=None, AWSAccessKeyId=None, Timestamp=None,
+                 Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -3571,6 +4364,7 @@ class SetObjectAccessControlPolicy(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3581,49 +4375,68 @@ class SetObjectAccessControlPolicy(GeneratedsSuper):
             return SetObjectAccessControlPolicy.subclass(*args_, **kwargs_)
         else:
             return SetObjectAccessControlPolicy(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.AccessControlList is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.AccessControlList is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetObjectAccessControlPolicy', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='SetObjectAccessControlPolicy', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('SetObjectAccessControlPolicy')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3634,43 +4447,60 @@ class SetObjectAccessControlPolicy(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SetObjectAccessControlPolicy')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetObjectAccessControlPolicy', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetObjectAccessControlPolicy',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SetObjectAccessControlPolicy'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='SetObjectAccessControlPolicy'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetObjectAccessControlPolicy', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='SetObjectAccessControlPolicy', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3678,8 +4508,10 @@ class SetObjectAccessControlPolicy(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -3715,15 +4547,19 @@ class SetObjectAccessControlPolicy(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class SetObjectAccessControlPolicy
 
 
 class SetObjectAccessControlPolicyResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3734,7 +4570,9 @@ class SetObjectAccessControlPolicyResponse(GeneratedsSuper):
             return SetObjectAccessControlPolicyResponse.subclass(*args_, **kwargs_)
         else:
             return SetObjectAccessControlPolicyResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def hasContent_(self):
         if (
 
@@ -3742,7 +4580,10 @@ class SetObjectAccessControlPolicyResponse(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetObjectAccessControlPolicyResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='SetObjectAccessControlPolicyResponse', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('SetObjectAccessControlPolicyResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3753,19 +4594,27 @@ class SetObjectAccessControlPolicyResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SetObjectAccessControlPolicyResponse')
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                              name_='SetObjectAccessControlPolicyResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetObjectAccessControlPolicyResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetObjectAccessControlPolicyResponse',
+                                pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SetObjectAccessControlPolicyResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='SetObjectAccessControlPolicyResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetObjectAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='SetObjectAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3773,17 +4622,23 @@ class SetObjectAccessControlPolicyResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class SetObjectAccessControlPolicyResponse
 
 
 class SetBucketAccessControlPolicy(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, AccessControlList=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, AccessControlList=None, AWSAccessKeyId=None, Timestamp=None, Signature=None,
+                 Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -3796,6 +4651,7 @@ class SetBucketAccessControlPolicy(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3806,44 +4662,61 @@ class SetBucketAccessControlPolicy(GeneratedsSuper):
             return SetBucketAccessControlPolicy.subclass(*args_, **kwargs_)
         else:
             return SetBucketAccessControlPolicy(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.AccessControlList is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.AccessControlList is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketAccessControlPolicy', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='SetBucketAccessControlPolicy', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('SetBucketAccessControlPolicy')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3854,40 +4727,55 @@ class SetBucketAccessControlPolicy(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SetBucketAccessControlPolicy')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketAccessControlPolicy', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketAccessControlPolicy',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SetBucketAccessControlPolicy'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='SetBucketAccessControlPolicy'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketAccessControlPolicy', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='SetBucketAccessControlPolicy', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3895,8 +4783,10 @@ class SetBucketAccessControlPolicy(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -3927,15 +4817,19 @@ class SetBucketAccessControlPolicy(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class SetBucketAccessControlPolicy
 
 
 class SetBucketAccessControlPolicyResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3946,7 +4840,9 @@ class SetBucketAccessControlPolicyResponse(GeneratedsSuper):
             return SetBucketAccessControlPolicyResponse.subclass(*args_, **kwargs_)
         else:
             return SetBucketAccessControlPolicyResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def hasContent_(self):
         if (
 
@@ -3954,7 +4850,10 @@ class SetBucketAccessControlPolicyResponse(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketAccessControlPolicyResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+               name_='SetBucketAccessControlPolicyResponse', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('SetBucketAccessControlPolicyResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3965,19 +4864,27 @@ class SetBucketAccessControlPolicyResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SetBucketAccessControlPolicyResponse')
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                              name_='SetBucketAccessControlPolicyResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketAccessControlPolicyResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='SetBucketAccessControlPolicyResponse',
+                                pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SetBucketAccessControlPolicyResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='SetBucketAccessControlPolicyResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='SetBucketAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='SetBucketAccessControlPolicyResponse', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3985,17 +4892,23 @@ class SetBucketAccessControlPolicyResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
+
+
 # end class SetBucketAccessControlPolicyResponse
 
 
 class GetObject(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, GetMetadata=None, GetData=None, InlineData=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, GetMetadata=None, GetData=None, InlineData=None, AWSAccessKeyId=None,
+                 Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -4011,6 +4924,7 @@ class GetObject(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4021,59 +4935,82 @@ class GetObject(GeneratedsSuper):
             return GetObject.subclass(*args_, **kwargs_)
         else:
             return GetObject(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_GetMetadata(self):
         return self.GetMetadata
+
     def set_GetMetadata(self, GetMetadata):
         self.GetMetadata = GetMetadata
+
     def get_GetData(self):
         return self.GetData
+
     def set_GetData(self, GetData):
         self.GetData = GetData
+
     def get_InlineData(self):
         return self.InlineData
+
     def set_InlineData(self, InlineData):
         self.InlineData = InlineData
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.GetMetadata is not None or
-            self.GetData is not None or
-            self.InlineData is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.GetMetadata is not None or
+                self.GetData is not None or
+                self.InlineData is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObject', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObject',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObject')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4084,50 +5021,69 @@ class GetObject(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObject')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObject', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObject'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObject', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObject',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.GetMetadata is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGetMetadata>%s</%sGetMetadata>%s' % (namespaceprefix_ , self.gds_format_boolean(self.GetMetadata, input_name='GetMetadata'), namespaceprefix_ , eol_))
+            outfile.write('<%sGetMetadata>%s</%sGetMetadata>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.GetMetadata, input_name='GetMetadata'), namespaceprefix_,
+            eol_))
         if self.GetData is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGetData>%s</%sGetData>%s' % (namespaceprefix_ , self.gds_format_boolean(self.GetData, input_name='GetData'), namespaceprefix_ , eol_))
+            outfile.write('<%sGetData>%s</%sGetData>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.GetData, input_name='GetData'), namespaceprefix_, eol_))
         if self.InlineData is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sInlineData>%s</%sInlineData>%s' % (namespaceprefix_ , self.gds_format_boolean(self.InlineData, input_name='InlineData'), namespaceprefix_ , eol_))
+            outfile.write('<%sInlineData>%s</%sInlineData>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.InlineData, input_name='InlineData'), namespaceprefix_,
+            eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4135,8 +5091,10 @@ class GetObject(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -4182,16 +5140,20 @@ class GetObject(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class GetObject
 
 
 class GetObjectResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, GetObjectResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.GetObjectResponse = GetObjectResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4202,19 +5164,26 @@ class GetObjectResponse(GeneratedsSuper):
             return GetObjectResponse.subclass(*args_, **kwargs_)
         else:
             return GetObjectResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_GetObjectResponse(self):
         return self.GetObjectResponse
+
     def set_GetObjectResponse(self, GetObjectResponse):
         self.GetObjectResponse = GetObjectResponse
+
     def hasContent_(self):
         if (
-            self.GetObjectResponse is not None
+                self.GetObjectResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObjectResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4225,25 +5194,32 @@ class GetObjectResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObjectResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResponse',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.GetObjectResponse is not None:
-            self.GetObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetObjectResponse', pretty_print=pretty_print)
+            self.GetObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetObjectResponse',
+                                          pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4251,24 +5227,29 @@ class GetObjectResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GetObjectResponse':
             obj_ = GetObjectResult.factory(parent_object_=self)
             obj_.build(child_)
             self.GetObjectResponse = obj_
             obj_.original_tagname_ = 'GetObjectResponse'
+
+
 # end class GetObjectResponse
 
 
 class GetObjectResult(Result):
     subclass = None
     superclass = Result
+
     def __init__(self, Status=None, Metadata=None, Data=None, LastModified=None, ETag=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        super(GetObjectResult, self).__init__(Status,  **kwargs_)
+        super(GetObjectResult, self).__init__(Status, **kwargs_)
         if Metadata is None:
             self.Metadata = []
         else:
@@ -4280,6 +5261,7 @@ class GetObjectResult(Result):
             initvalue_ = LastModified
         self.LastModified = initvalue_
         self.ETag = ETag
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4290,41 +5272,57 @@ class GetObjectResult(Result):
             return GetObjectResult.subclass(*args_, **kwargs_)
         else:
             return GetObjectResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Metadata(self):
         return self.Metadata
+
     def set_Metadata(self, Metadata):
         self.Metadata = Metadata
+
     def add_Metadata(self, value):
         self.Metadata.append(value)
+
     def insert_Metadata_at(self, index, value):
         self.Metadata.insert(index, value)
+
     def replace_Metadata_at(self, index, value):
         self.Metadata[index] = value
+
     def get_Data(self):
         return self.Data
+
     def set_Data(self, Data):
         self.Data = Data
+
     def get_LastModified(self):
         return self.LastModified
+
     def set_LastModified(self, LastModified):
         self.LastModified = LastModified
+
     def get_ETag(self):
         return self.ETag
+
     def set_ETag(self, ETag):
         self.ETag = ETag
+
     def hasContent_(self):
         if (
-            self.Metadata or
-            self.Data is not None or
-            self.LastModified is not None or
-            self.ETag is not None or
-            super(GetObjectResult, self).hasContent_()
+                self.Metadata or
+                self.Data is not None or
+                self.LastModified is not None or
+                self.ETag is not None or
+                super(GetObjectResult, self).hasContent_()
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObjectResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4335,35 +5333,49 @@ class GetObjectResult(Result):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObjectResult'):
-        super(GetObjectResult, self).exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectResult')
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResult', fromsubclass_=False, pretty_print=True):
-        super(GetObjectResult, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        super(GetObjectResult, self).exportAttributes(outfile, level, already_processed, namespaceprefix_,
+                                                      name_='GetObjectResult')
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectResult',
+                       fromsubclass_=False, pretty_print=True):
+        super(GetObjectResult, self).exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True,
+                                                    pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Metadata_ in self.Metadata:
-            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata', pretty_print=pretty_print)
+            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata',
+                             pretty_print=pretty_print)
         if self.Data is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sData>%s</%sData>%s' % (namespaceprefix_ , self.gds_format_base64(self.Data, input_name='Data'), namespaceprefix_ , eol_))
+            outfile.write('<%sData>%s</%sData>%s' % (
+            namespaceprefix_, self.gds_format_base64(self.Data, input_name='Data'), namespaceprefix_, eol_))
         if self.LastModified is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (namespaceprefix_ , self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_ , eol_))
+            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_,
+            eol_))
         if self.ETag is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sETag>%s</%sETag>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')), namespaceprefix_ , eol_))
+            outfile.write('<%sETag>%s</%sETag>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4371,8 +5383,10 @@ class GetObjectResult(Result):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         super(GetObjectResult, self).buildAttributes(node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Metadata':
             obj_ = MetadataEntry.factory(parent_object_=self)
@@ -4400,13 +5414,19 @@ class GetObjectResult(Result):
             value_ = self.gds_validate_string(value_, node, 'ETag')
             self.ETag = value_
         super(GetObjectResult, self).buildChildren(child_, node, nodeName_, True)
+
+
 # end class GetObjectResult
 
 
 class GetObjectExtended(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, GetMetadata=None, GetData=None, InlineData=None, ByteRangeStart=None, ByteRangeEnd=None, IfModifiedSince=None, IfUnmodifiedSince=None, IfMatch=None, IfNoneMatch=None, ReturnCompleteObjectOnConditionFailure=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, GetMetadata=None, GetData=None, InlineData=None, ByteRangeStart=None,
+                 ByteRangeEnd=None, IfModifiedSince=None, IfUnmodifiedSince=None, IfMatch=None, IfNoneMatch=None,
+                 ReturnCompleteObjectOnConditionFailure=None, AWSAccessKeyId=None, Timestamp=None, Signature=None,
+                 Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -4443,6 +5463,7 @@ class GetObjectExtended(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4453,106 +5474,149 @@ class GetObjectExtended(GeneratedsSuper):
             return GetObjectExtended.subclass(*args_, **kwargs_)
         else:
             return GetObjectExtended(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_GetMetadata(self):
         return self.GetMetadata
+
     def set_GetMetadata(self, GetMetadata):
         self.GetMetadata = GetMetadata
+
     def get_GetData(self):
         return self.GetData
+
     def set_GetData(self, GetData):
         self.GetData = GetData
+
     def get_InlineData(self):
         return self.InlineData
+
     def set_InlineData(self, InlineData):
         self.InlineData = InlineData
+
     def get_ByteRangeStart(self):
         return self.ByteRangeStart
+
     def set_ByteRangeStart(self, ByteRangeStart):
         self.ByteRangeStart = ByteRangeStart
+
     def get_ByteRangeEnd(self):
         return self.ByteRangeEnd
+
     def set_ByteRangeEnd(self, ByteRangeEnd):
         self.ByteRangeEnd = ByteRangeEnd
+
     def get_IfModifiedSince(self):
         return self.IfModifiedSince
+
     def set_IfModifiedSince(self, IfModifiedSince):
         self.IfModifiedSince = IfModifiedSince
+
     def get_IfUnmodifiedSince(self):
         return self.IfUnmodifiedSince
+
     def set_IfUnmodifiedSince(self, IfUnmodifiedSince):
         self.IfUnmodifiedSince = IfUnmodifiedSince
+
     def get_IfMatch(self):
         return self.IfMatch
+
     def set_IfMatch(self, IfMatch):
         self.IfMatch = IfMatch
+
     def add_IfMatch(self, value):
         self.IfMatch.append(value)
+
     def insert_IfMatch_at(self, index, value):
         self.IfMatch.insert(index, value)
+
     def replace_IfMatch_at(self, index, value):
         self.IfMatch[index] = value
+
     def get_IfNoneMatch(self):
         return self.IfNoneMatch
+
     def set_IfNoneMatch(self, IfNoneMatch):
         self.IfNoneMatch = IfNoneMatch
+
     def add_IfNoneMatch(self, value):
         self.IfNoneMatch.append(value)
+
     def insert_IfNoneMatch_at(self, index, value):
         self.IfNoneMatch.insert(index, value)
+
     def replace_IfNoneMatch_at(self, index, value):
         self.IfNoneMatch[index] = value
+
     def get_ReturnCompleteObjectOnConditionFailure(self):
         return self.ReturnCompleteObjectOnConditionFailure
+
     def set_ReturnCompleteObjectOnConditionFailure(self, ReturnCompleteObjectOnConditionFailure):
         self.ReturnCompleteObjectOnConditionFailure = ReturnCompleteObjectOnConditionFailure
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.GetMetadata is not None or
-            self.GetData is not None or
-            self.InlineData is not None or
-            self.ByteRangeStart is not None or
-            self.ByteRangeEnd is not None or
-            self.IfModifiedSince is not None or
-            self.IfUnmodifiedSince is not None or
-            self.IfMatch or
-            self.IfNoneMatch or
-            self.ReturnCompleteObjectOnConditionFailure is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.GetMetadata is not None or
+                self.GetData is not None or
+                self.InlineData is not None or
+                self.ByteRangeStart is not None or
+                self.ByteRangeEnd is not None or
+                self.IfModifiedSince is not None or
+                self.IfUnmodifiedSince is not None or
+                self.IfMatch or
+                self.IfNoneMatch or
+                self.ReturnCompleteObjectOnConditionFailure is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtended', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtended',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObjectExtended')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4563,71 +5627,106 @@ class GetObjectExtended(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectExtended')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectExtended', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectExtended',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObjectExtended'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtended', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtended',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.GetMetadata is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGetMetadata>%s</%sGetMetadata>%s' % (namespaceprefix_ , self.gds_format_boolean(self.GetMetadata, input_name='GetMetadata'), namespaceprefix_ , eol_))
+            outfile.write('<%sGetMetadata>%s</%sGetMetadata>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.GetMetadata, input_name='GetMetadata'), namespaceprefix_,
+            eol_))
         if self.GetData is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGetData>%s</%sGetData>%s' % (namespaceprefix_ , self.gds_format_boolean(self.GetData, input_name='GetData'), namespaceprefix_ , eol_))
+            outfile.write('<%sGetData>%s</%sGetData>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.GetData, input_name='GetData'), namespaceprefix_, eol_))
         if self.InlineData is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sInlineData>%s</%sInlineData>%s' % (namespaceprefix_ , self.gds_format_boolean(self.InlineData, input_name='InlineData'), namespaceprefix_ , eol_))
+            outfile.write('<%sInlineData>%s</%sInlineData>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.InlineData, input_name='InlineData'), namespaceprefix_,
+            eol_))
         if self.ByteRangeStart is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sByteRangeStart>%s</%sByteRangeStart>%s' % (namespaceprefix_ , self.gds_format_integer(self.ByteRangeStart, input_name='ByteRangeStart'), namespaceprefix_ , eol_))
+            outfile.write('<%sByteRangeStart>%s</%sByteRangeStart>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.ByteRangeStart, input_name='ByteRangeStart'),
+            namespaceprefix_, eol_))
         if self.ByteRangeEnd is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sByteRangeEnd>%s</%sByteRangeEnd>%s' % (namespaceprefix_ , self.gds_format_integer(self.ByteRangeEnd, input_name='ByteRangeEnd'), namespaceprefix_ , eol_))
+            outfile.write('<%sByteRangeEnd>%s</%sByteRangeEnd>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.ByteRangeEnd, input_name='ByteRangeEnd'), namespaceprefix_,
+            eol_))
         if self.IfModifiedSince is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIfModifiedSince>%s</%sIfModifiedSince>%s' % (namespaceprefix_ , self.gds_format_datetime(self.IfModifiedSince, input_name='IfModifiedSince'), namespaceprefix_ , eol_))
+            outfile.write('<%sIfModifiedSince>%s</%sIfModifiedSince>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.IfModifiedSince, input_name='IfModifiedSince'),
+            namespaceprefix_, eol_))
         if self.IfUnmodifiedSince is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIfUnmodifiedSince>%s</%sIfUnmodifiedSince>%s' % (namespaceprefix_ , self.gds_format_datetime(self.IfUnmodifiedSince, input_name='IfUnmodifiedSince'), namespaceprefix_ , eol_))
+            outfile.write('<%sIfUnmodifiedSince>%s</%sIfUnmodifiedSince>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.IfUnmodifiedSince, input_name='IfUnmodifiedSince'),
+            namespaceprefix_, eol_))
         for IfMatch_ in self.IfMatch:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIfMatch>%s</%sIfMatch>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(IfMatch_), input_name='IfMatch')), namespaceprefix_ , eol_))
+            outfile.write('<%sIfMatch>%s</%sIfMatch>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(IfMatch_), input_name='IfMatch')),
+            namespaceprefix_, eol_))
         for IfNoneMatch_ in self.IfNoneMatch:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIfNoneMatch>%s</%sIfNoneMatch>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(IfNoneMatch_), input_name='IfNoneMatch')), namespaceprefix_ , eol_))
+            outfile.write('<%sIfNoneMatch>%s</%sIfNoneMatch>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(IfNoneMatch_), input_name='IfNoneMatch')), namespaceprefix_, eol_))
         if self.ReturnCompleteObjectOnConditionFailure is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sReturnCompleteObjectOnConditionFailure>%s</%sReturnCompleteObjectOnConditionFailure>%s' % (namespaceprefix_ , self.gds_format_boolean(self.ReturnCompleteObjectOnConditionFailure, input_name='ReturnCompleteObjectOnConditionFailure'), namespaceprefix_ , eol_))
+            outfile.write(
+                '<%sReturnCompleteObjectOnConditionFailure>%s</%sReturnCompleteObjectOnConditionFailure>%s' % (
+                namespaceprefix_, self.gds_format_boolean(self.ReturnCompleteObjectOnConditionFailure,
+                                                          input_name='ReturnCompleteObjectOnConditionFailure'),
+                namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4635,8 +5734,10 @@ class GetObjectExtended(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -4715,16 +5816,20 @@ class GetObjectExtended(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class GetObjectExtended
 
 
 class GetObjectExtendedResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, GetObjectResponse=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.GetObjectResponse = GetObjectResponse
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4735,19 +5840,26 @@ class GetObjectExtendedResponse(GeneratedsSuper):
             return GetObjectExtendedResponse.subclass(*args_, **kwargs_)
         else:
             return GetObjectExtendedResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_GetObjectResponse(self):
         return self.GetObjectResponse
+
     def set_GetObjectResponse(self, GetObjectResponse):
         self.GetObjectResponse = GetObjectResponse
+
     def hasContent_(self):
         if (
-            self.GetObjectResponse is not None
+                self.GetObjectResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtendedResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtendedResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GetObjectExtendedResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4758,25 +5870,33 @@ class GetObjectExtendedResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='GetObjectExtendedResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectExtendedResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='GetObjectExtendedResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='GetObjectExtendedResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='GetObjectExtendedResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='GetObjectExtendedResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='GetObjectExtendedResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.GetObjectResponse is not None:
-            self.GetObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetObjectResponse', pretty_print=pretty_print)
+            self.GetObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='GetObjectResponse',
+                                          pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4784,21 +5904,27 @@ class GetObjectExtendedResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GetObjectResponse':
             obj_ = GetObjectResult.factory(parent_object_=self)
             obj_.build(child_)
             self.GetObjectResponse = obj_
             obj_.original_tagname_ = 'GetObjectResponse'
+
+
 # end class GetObjectExtendedResponse
 
 
 class PutObject(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, Metadata=None, ContentLength=None, AccessControlList=None, StorageClass=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, Metadata=None, ContentLength=None, AccessControlList=None,
+                 StorageClass=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -4819,6 +5945,7 @@ class PutObject(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4829,53 +5956,78 @@ class PutObject(GeneratedsSuper):
             return PutObject.subclass(*args_, **kwargs_)
         else:
             return PutObject(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_Metadata(self):
         return self.Metadata
+
     def set_Metadata(self, Metadata):
         self.Metadata = Metadata
+
     def add_Metadata(self, value):
         self.Metadata.append(value)
+
     def insert_Metadata_at(self, index, value):
         self.Metadata.insert(index, value)
+
     def replace_Metadata_at(self, index, value):
         self.Metadata[index] = value
+
     def get_ContentLength(self):
         return self.ContentLength
+
     def set_ContentLength(self, ContentLength):
         self.ContentLength = ContentLength
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def get_StorageClass(self):
         return self.StorageClass
+
     def set_StorageClass(self, StorageClass):
         self.StorageClass = StorageClass
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def validate_StorageClass(self, value):
         # Validate type StorageClass, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -4887,24 +6039,29 @@ class PutObject(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.Metadata or
-            self.ContentLength is not None or
-            self.AccessControlList is not None or
-            self.StorageClass is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.Metadata or
+                self.ContentLength is not None or
+                self.AccessControlList is not None or
+                self.StorageClass is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObject', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObject',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PutObject')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4915,51 +6072,71 @@ class PutObject(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PutObject')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObject', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PutObject'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObject', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObject',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         for Metadata_ in self.Metadata:
-            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata', pretty_print=pretty_print)
+            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata',
+                             pretty_print=pretty_print)
         if self.ContentLength is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sContentLength>%s</%sContentLength>%s' % (namespaceprefix_ , self.gds_format_integer(self.ContentLength, input_name='ContentLength'), namespaceprefix_ , eol_))
+            outfile.write('<%sContentLength>%s</%sContentLength>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.ContentLength, input_name='ContentLength'), namespaceprefix_,
+            eol_))
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
         if self.StorageClass is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_ , eol_))
+            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_,
+                                                                     eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4967,8 +6144,10 @@ class PutObject(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -5021,16 +6200,20 @@ class PutObject(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class PutObject
 
 
 class PutObjectResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, PutObjectResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.PutObjectResponse = PutObjectResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5041,19 +6224,26 @@ class PutObjectResponse(GeneratedsSuper):
             return PutObjectResponse.subclass(*args_, **kwargs_)
         else:
             return PutObjectResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_PutObjectResponse(self):
         return self.PutObjectResponse
+
     def set_PutObjectResponse(self, PutObjectResponse):
         self.PutObjectResponse = PutObjectResponse
+
     def hasContent_(self):
         if (
-            self.PutObjectResponse is not None
+                self.PutObjectResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PutObjectResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5064,25 +6254,32 @@ class PutObjectResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PutObjectResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PutObjectResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResponse',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.PutObjectResponse is not None:
-            self.PutObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='PutObjectResponse', pretty_print=pretty_print)
+            self.PutObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='PutObjectResponse',
+                                          pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5090,20 +6287,25 @@ class PutObjectResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'PutObjectResponse':
             obj_ = PutObjectResult.factory(parent_object_=self)
             obj_.build(child_)
             self.PutObjectResponse = obj_
             obj_.original_tagname_ = 'PutObjectResponse'
+
+
 # end class PutObjectResponse
 
 
 class PutObjectResult(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, ETag=None, LastModified=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -5113,6 +6315,7 @@ class PutObjectResult(GeneratedsSuper):
         else:
             initvalue_ = LastModified
         self.LastModified = initvalue_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5123,24 +6326,33 @@ class PutObjectResult(GeneratedsSuper):
             return PutObjectResult.subclass(*args_, **kwargs_)
         else:
             return PutObjectResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ETag(self):
         return self.ETag
+
     def set_ETag(self, ETag):
         self.ETag = ETag
+
     def get_LastModified(self):
         return self.LastModified
+
     def set_LastModified(self, LastModified):
         self.LastModified = LastModified
+
     def hasContent_(self):
         if (
-            self.ETag is not None or
-            self.LastModified is not None
+                self.ETag is not None or
+                self.LastModified is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PutObjectResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5151,29 +6363,39 @@ class PutObjectResult(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PutObjectResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PutObjectResult'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResult', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectResult',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ETag is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sETag>%s</%sETag>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')), namespaceprefix_ , eol_))
+            outfile.write('<%sETag>%s</%sETag>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')),
+            namespaceprefix_, eol_))
         if self.LastModified is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (namespaceprefix_ , self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_ , eol_))
+            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_,
+            eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5181,8 +6403,10 @@ class PutObjectResult(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ETag':
             value_ = child_.text
@@ -5193,13 +6417,17 @@ class PutObjectResult(GeneratedsSuper):
             sval_ = child_.text
             dval_ = self.gds_parse_datetime(sval_)
             self.LastModified = dval_
+
+
 # end class PutObjectResult
 
 
 class PutObjectInline(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, Metadata=None, Data=None, ContentLength=None, AccessControlList=None, StorageClass=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, Metadata=None, Data=None, ContentLength=None, AccessControlList=None,
+                 StorageClass=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -5221,6 +6449,7 @@ class PutObjectInline(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5231,57 +6460,84 @@ class PutObjectInline(GeneratedsSuper):
             return PutObjectInline.subclass(*args_, **kwargs_)
         else:
             return PutObjectInline(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_Metadata(self):
         return self.Metadata
+
     def set_Metadata(self, Metadata):
         self.Metadata = Metadata
+
     def add_Metadata(self, value):
         self.Metadata.append(value)
+
     def insert_Metadata_at(self, index, value):
         self.Metadata.insert(index, value)
+
     def replace_Metadata_at(self, index, value):
         self.Metadata[index] = value
+
     def get_Data(self):
         return self.Data
+
     def set_Data(self, Data):
         self.Data = Data
+
     def get_ContentLength(self):
         return self.ContentLength
+
     def set_ContentLength(self, ContentLength):
         self.ContentLength = ContentLength
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def get_StorageClass(self):
         return self.StorageClass
+
     def set_StorageClass(self, StorageClass):
         self.StorageClass = StorageClass
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def validate_StorageClass(self, value):
         # Validate type StorageClass, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -5293,25 +6549,30 @@ class PutObjectInline(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.Metadata or
-            self.Data is not None or
-            self.ContentLength is not None or
-            self.AccessControlList is not None or
-            self.StorageClass is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.Metadata or
+                self.Data is not None or
+                self.ContentLength is not None or
+                self.AccessControlList is not None or
+                self.StorageClass is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInline', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInline',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PutObjectInline')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5322,54 +6583,76 @@ class PutObjectInline(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PutObjectInline')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectInline', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectInline',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PutObjectInline'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInline', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInline',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         for Metadata_ in self.Metadata:
-            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata', pretty_print=pretty_print)
+            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata',
+                             pretty_print=pretty_print)
         if self.Data is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sData>%s</%sData>%s' % (namespaceprefix_ , self.gds_format_base64(self.Data, input_name='Data'), namespaceprefix_ , eol_))
+            outfile.write('<%sData>%s</%sData>%s' % (
+            namespaceprefix_, self.gds_format_base64(self.Data, input_name='Data'), namespaceprefix_, eol_))
         if self.ContentLength is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sContentLength>%s</%sContentLength>%s' % (namespaceprefix_ , self.gds_format_integer(self.ContentLength, input_name='ContentLength'), namespaceprefix_ , eol_))
+            outfile.write('<%sContentLength>%s</%sContentLength>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.ContentLength, input_name='ContentLength'), namespaceprefix_,
+            eol_))
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
         if self.StorageClass is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_ , eol_))
+            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_,
+                                                                     eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5377,8 +6660,10 @@ class PutObjectInline(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -5442,16 +6727,20 @@ class PutObjectInline(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class PutObjectInline
 
 
 class PutObjectInlineResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, PutObjectInlineResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.PutObjectInlineResponse = PutObjectInlineResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5462,19 +6751,26 @@ class PutObjectInlineResponse(GeneratedsSuper):
             return PutObjectInlineResponse.subclass(*args_, **kwargs_)
         else:
             return PutObjectInlineResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_PutObjectInlineResponse(self):
         return self.PutObjectInlineResponse
+
     def set_PutObjectInlineResponse(self, PutObjectInlineResponse):
         self.PutObjectInlineResponse = PutObjectInlineResponse
+
     def hasContent_(self):
         if (
-            self.PutObjectInlineResponse is not None
+                self.PutObjectInlineResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInlineResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInlineResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PutObjectInlineResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5485,25 +6781,32 @@ class PutObjectInlineResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PutObjectInlineResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectInlineResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PutObjectInlineResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PutObjectInlineResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PutObjectInlineResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='PutObjectInlineResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.PutObjectInlineResponse is not None:
-            self.PutObjectInlineResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='PutObjectInlineResponse', pretty_print=pretty_print)
+            self.PutObjectInlineResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                                name_='PutObjectInlineResponse', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5511,21 +6814,27 @@ class PutObjectInlineResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'PutObjectInlineResponse':
             obj_ = PutObjectResult.factory(parent_object_=self)
             obj_.build(child_)
             self.PutObjectInlineResponse = obj_
             obj_.original_tagname_ = 'PutObjectInlineResponse'
+
+
 # end class PutObjectInlineResponse
 
 
 class DeleteObject(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Key=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Key=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None,
+                 **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -5538,6 +6847,7 @@ class DeleteObject(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5548,44 +6858,61 @@ class DeleteObject(GeneratedsSuper):
             return DeleteObject.subclass(*args_, **kwargs_)
         else:
             return DeleteObject(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Key is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Key is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObject', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObject',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DeleteObject')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5596,41 +6923,55 @@ class DeleteObject(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='DeleteObject')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteObject', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='DeleteObject'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObject', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObject',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5638,8 +6979,10 @@ class DeleteObject(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -5670,16 +7013,20 @@ class DeleteObject(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class DeleteObject
 
 
 class DeleteObjectResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, DeleteObjectResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.DeleteObjectResponse = DeleteObjectResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5690,19 +7037,26 @@ class DeleteObjectResponse(GeneratedsSuper):
             return DeleteObjectResponse.subclass(*args_, **kwargs_)
         else:
             return DeleteObjectResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_DeleteObjectResponse(self):
         return self.DeleteObjectResponse
+
     def set_DeleteObjectResponse(self, DeleteObjectResponse):
         self.DeleteObjectResponse = DeleteObjectResponse
+
     def hasContent_(self):
         if (
-            self.DeleteObjectResponse is not None
+                self.DeleteObjectResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObjectResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObjectResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DeleteObjectResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5713,25 +7067,32 @@ class DeleteObjectResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='DeleteObjectResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteObjectResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteObjectResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='DeleteObjectResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteObjectResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='DeleteObjectResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.DeleteObjectResponse is not None:
-            self.DeleteObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='DeleteObjectResponse', pretty_print=pretty_print)
+            self.DeleteObjectResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                             name_='DeleteObjectResponse', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5739,21 +7100,27 @@ class DeleteObjectResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'DeleteObjectResponse':
             obj_ = Status.factory(parent_object_=self)
             obj_.build(child_)
             self.DeleteObjectResponse = obj_
             obj_.original_tagname_ = 'DeleteObjectResponse'
+
+
 # end class DeleteObjectResponse
 
 
 class ListBucket(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Bucket=None, Prefix=None, Marker=None, MaxKeys=None, Delimiter=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, Bucket=None, Prefix=None, Marker=None, MaxKeys=None, Delimiter=None, AWSAccessKeyId=None,
+                 Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Bucket = Bucket
@@ -5769,6 +7136,7 @@ class ListBucket(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5779,59 +7147,82 @@ class ListBucket(GeneratedsSuper):
             return ListBucket.subclass(*args_, **kwargs_)
         else:
             return ListBucket(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Prefix(self):
         return self.Prefix
+
     def set_Prefix(self, Prefix):
         self.Prefix = Prefix
+
     def get_Marker(self):
         return self.Marker
+
     def set_Marker(self, Marker):
         self.Marker = Marker
+
     def get_MaxKeys(self):
         return self.MaxKeys
+
     def set_MaxKeys(self, MaxKeys):
         self.MaxKeys = MaxKeys
+
     def get_Delimiter(self):
         return self.Delimiter
+
     def set_Delimiter(self, Delimiter):
         self.Delimiter = Delimiter
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def hasContent_(self):
         if (
-            self.Bucket is not None or
-            self.Prefix is not None or
-            self.Marker is not None or
-            self.MaxKeys is not None or
-            self.Delimiter is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.Bucket is not None or
+                self.Prefix is not None or
+                self.Marker is not None or
+                self.MaxKeys is not None or
+                self.Delimiter is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucket', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucket',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListBucket')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5842,50 +7233,68 @@ class ListBucket(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListBucket')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListBucket', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListBucket'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucket', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucket',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Prefix is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')), namespaceprefix_ , eol_))
+            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')),
+            namespaceprefix_, eol_))
         if self.Marker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMarker>%s</%sMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Marker), input_name='Marker')), namespaceprefix_ , eol_))
+            outfile.write('<%sMarker>%s</%sMarker>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Marker), input_name='Marker')),
+            namespaceprefix_, eol_))
         if self.MaxKeys is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMaxKeys>%s</%sMaxKeys>%s' % (namespaceprefix_ , self.gds_format_integer(self.MaxKeys, input_name='MaxKeys'), namespaceprefix_ , eol_))
+            outfile.write('<%sMaxKeys>%s</%sMaxKeys>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.MaxKeys, input_name='MaxKeys'), namespaceprefix_, eol_))
         if self.Delimiter is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDelimiter>%s</%sDelimiter>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Delimiter), input_name='Delimiter')), namespaceprefix_ , eol_))
+            outfile.write('<%sDelimiter>%s</%sDelimiter>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Delimiter), input_name='Delimiter')), namespaceprefix_, eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5893,8 +7302,10 @@ class ListBucket(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             value_ = child_.text
@@ -5940,16 +7351,20 @@ class ListBucket(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class ListBucket
 
 
 class ListBucketResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, ListBucketResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ListBucketResponse = ListBucketResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5960,19 +7375,26 @@ class ListBucketResponse(GeneratedsSuper):
             return ListBucketResponse.subclass(*args_, **kwargs_)
         else:
             return ListBucketResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ListBucketResponse(self):
         return self.ListBucketResponse
+
     def set_ListBucketResponse(self, ListBucketResponse):
         self.ListBucketResponse = ListBucketResponse
+
     def hasContent_(self):
         if (
-            self.ListBucketResponse is not None
+                self.ListBucketResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListBucketResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5983,25 +7405,32 @@ class ListBucketResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListBucketResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListBucketResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListBucketResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListBucketResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResponse',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ListBucketResponse is not None:
-            self.ListBucketResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='ListBucketResponse', pretty_print=pretty_print)
+            self.ListBucketResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                           name_='ListBucketResponse', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6009,24 +7438,30 @@ class ListBucketResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ListBucketResponse':
             obj_ = ListBucketResult.factory(parent_object_=self)
             obj_.build(child_)
             self.ListBucketResponse = obj_
             obj_.original_tagname_ = 'ListBucketResponse'
+
+
 # end class ListBucketResponse
 
 
 class ListVersionsResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, ListVersionsResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ListVersionsResponse = ListVersionsResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6037,19 +7472,26 @@ class ListVersionsResponse(GeneratedsSuper):
             return ListVersionsResponse.subclass(*args_, **kwargs_)
         else:
             return ListVersionsResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ListVersionsResponse(self):
         return self.ListVersionsResponse
+
     def set_ListVersionsResponse(self, ListVersionsResponse):
         self.ListVersionsResponse = ListVersionsResponse
+
     def hasContent_(self):
         if (
-            self.ListVersionsResponse is not None
+                self.ListVersionsResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListVersionsResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6060,25 +7502,32 @@ class ListVersionsResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListVersionsResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListVersionsResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListVersionsResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListVersionsResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='ListVersionsResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ListVersionsResponse is not None:
-            self.ListVersionsResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='ListVersionsResponse', pretty_print=pretty_print)
+            self.ListVersionsResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                             name_='ListVersionsResponse', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6086,20 +7535,25 @@ class ListVersionsResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ListVersionsResponse':
             obj_ = ListVersionsResult.factory(parent_object_=self)
             obj_.build(child_)
             self.ListVersionsResponse = obj_
             obj_.original_tagname_ = 'ListVersionsResponse'
+
+
 # end class ListVersionsResponse
 
 
 class ListEntry(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Key=None, LastModified=None, ETag=None, Size=None, Owner=None, StorageClass=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -6114,6 +7568,7 @@ class ListEntry(GeneratedsSuper):
         self.Owner = Owner
         self.StorageClass = StorageClass
         self.validate_StorageClass(self.StorageClass)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6124,31 +7579,45 @@ class ListEntry(GeneratedsSuper):
             return ListEntry.subclass(*args_, **kwargs_)
         else:
             return ListEntry(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_LastModified(self):
         return self.LastModified
+
     def set_LastModified(self, LastModified):
         self.LastModified = LastModified
+
     def get_ETag(self):
         return self.ETag
+
     def set_ETag(self, ETag):
         self.ETag = ETag
+
     def get_Size(self):
         return self.Size
+
     def set_Size(self, Size):
         self.Size = Size
+
     def get_Owner(self):
         return self.Owner
+
     def set_Owner(self, Owner):
         self.Owner = Owner
+
     def get_StorageClass(self):
         return self.StorageClass
+
     def set_StorageClass(self, StorageClass):
         self.StorageClass = StorageClass
+
     def validate_StorageClass(self, value):
         # Validate type StorageClass, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -6160,20 +7629,25 @@ class ListEntry(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Key is not None or
-            self.LastModified is not None or
-            self.ETag is not None or
-            self.Size is not None or
-            self.Owner is not None or
-            self.StorageClass is not None
+                self.Key is not None or
+                self.LastModified is not None or
+                self.ETag is not None or
+                self.Size is not None or
+                self.Owner is not None or
+                self.StorageClass is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListEntry', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListEntry',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListEntry')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6184,40 +7658,55 @@ class ListEntry(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListEntry')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListEntry', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListEntry'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListEntry', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListEntry',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.LastModified is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (namespaceprefix_ , self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_ , eol_))
+            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_,
+            eol_))
         if self.ETag is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sETag>%s</%sETag>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')), namespaceprefix_ , eol_))
+            outfile.write('<%sETag>%s</%sETag>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')),
+            namespaceprefix_, eol_))
         if self.Size is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSize>%s</%sSize>%s' % (namespaceprefix_ , self.gds_format_integer(self.Size, input_name='Size'), namespaceprefix_ , eol_))
+            outfile.write('<%sSize>%s</%sSize>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.Size, input_name='Size'), namespaceprefix_, eol_))
         if self.Owner is not None:
-            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner', pretty_print=pretty_print)
+            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner',
+                              pretty_print=pretty_print)
         if self.StorageClass is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_ , eol_))
+            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_,
+                                                                     eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6225,8 +7714,10 @@ class ListEntry(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Key':
             value_ = child_.text
@@ -6259,13 +7750,17 @@ class ListEntry(GeneratedsSuper):
             self.StorageClass = value_
             # validate type StorageClass
             self.validate_StorageClass(self.StorageClass)
+
+
 # end class ListEntry
 
 
 class VersionEntry(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Key=None, VersionId=None, IsLatest=None, LastModified=None, ETag=None, Size=None, Owner=None, StorageClass=None, **kwargs_):
+
+    def __init__(self, Key=None, VersionId=None, IsLatest=None, LastModified=None, ETag=None, Size=None, Owner=None,
+                 StorageClass=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Key = Key
@@ -6281,6 +7776,7 @@ class VersionEntry(GeneratedsSuper):
         self.Owner = Owner
         self.StorageClass = StorageClass
         self.validate_StorageClass(self.StorageClass)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6291,39 +7787,57 @@ class VersionEntry(GeneratedsSuper):
             return VersionEntry.subclass(*args_, **kwargs_)
         else:
             return VersionEntry(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_VersionId(self):
         return self.VersionId
+
     def set_VersionId(self, VersionId):
         self.VersionId = VersionId
+
     def get_IsLatest(self):
         return self.IsLatest
+
     def set_IsLatest(self, IsLatest):
         self.IsLatest = IsLatest
+
     def get_LastModified(self):
         return self.LastModified
+
     def set_LastModified(self, LastModified):
         self.LastModified = LastModified
+
     def get_ETag(self):
         return self.ETag
+
     def set_ETag(self, ETag):
         self.ETag = ETag
+
     def get_Size(self):
         return self.Size
+
     def set_Size(self, Size):
         self.Size = Size
+
     def get_Owner(self):
         return self.Owner
+
     def set_Owner(self, Owner):
         self.Owner = Owner
+
     def get_StorageClass(self):
         return self.StorageClass
+
     def set_StorageClass(self, StorageClass):
         self.StorageClass = StorageClass
+
     def validate_StorageClass(self, value):
         # Validate type StorageClass, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -6335,22 +7849,27 @@ class VersionEntry(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Key is not None or
-            self.VersionId is not None or
-            self.IsLatest is not None or
-            self.LastModified is not None or
-            self.ETag is not None or
-            self.Size is not None or
-            self.Owner is not None or
-            self.StorageClass is not None
+                self.Key is not None or
+                self.VersionId is not None or
+                self.IsLatest is not None or
+                self.LastModified is not None or
+                self.ETag is not None or
+                self.Size is not None or
+                self.Owner is not None or
+                self.StorageClass is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersionEntry', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersionEntry',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('VersionEntry')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6361,46 +7880,63 @@ class VersionEntry(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='VersionEntry')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='VersionEntry', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='VersionEntry'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersionEntry', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersionEntry',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.VersionId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersionId>%s</%sVersionId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.VersionId), input_name='VersionId')), namespaceprefix_ , eol_))
+            outfile.write('<%sVersionId>%s</%sVersionId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.VersionId), input_name='VersionId')), namespaceprefix_, eol_))
         if self.IsLatest is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIsLatest>%s</%sIsLatest>%s' % (namespaceprefix_ , self.gds_format_boolean(self.IsLatest, input_name='IsLatest'), namespaceprefix_ , eol_))
+            outfile.write('<%sIsLatest>%s</%sIsLatest>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.IsLatest, input_name='IsLatest'), namespaceprefix_, eol_))
         if self.LastModified is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (namespaceprefix_ , self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_ , eol_))
+            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_,
+            eol_))
         if self.ETag is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sETag>%s</%sETag>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')), namespaceprefix_ , eol_))
+            outfile.write('<%sETag>%s</%sETag>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')),
+            namespaceprefix_, eol_))
         if self.Size is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSize>%s</%sSize>%s' % (namespaceprefix_ , self.gds_format_integer(self.Size, input_name='Size'), namespaceprefix_ , eol_))
+            outfile.write('<%sSize>%s</%sSize>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.Size, input_name='Size'), namespaceprefix_, eol_))
         if self.Owner is not None:
-            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner', pretty_print=pretty_print)
+            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner',
+                              pretty_print=pretty_print)
         if self.StorageClass is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_ , eol_))
+            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_,
+                                                                     eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6408,8 +7944,10 @@ class VersionEntry(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Key':
             value_ = child_.text
@@ -6452,12 +7990,15 @@ class VersionEntry(GeneratedsSuper):
             self.StorageClass = value_
             # validate type StorageClass
             self.validate_StorageClass(self.StorageClass)
+
+
 # end class VersionEntry
 
 
 class DeleteMarkerEntry(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Key=None, VersionId=None, IsLatest=None, LastModified=None, Owner=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -6470,6 +8011,7 @@ class DeleteMarkerEntry(GeneratedsSuper):
             initvalue_ = LastModified
         self.LastModified = initvalue_
         self.Owner = Owner
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6480,39 +8022,54 @@ class DeleteMarkerEntry(GeneratedsSuper):
             return DeleteMarkerEntry.subclass(*args_, **kwargs_)
         else:
             return DeleteMarkerEntry(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_VersionId(self):
         return self.VersionId
+
     def set_VersionId(self, VersionId):
         self.VersionId = VersionId
+
     def get_IsLatest(self):
         return self.IsLatest
+
     def set_IsLatest(self, IsLatest):
         self.IsLatest = IsLatest
+
     def get_LastModified(self):
         return self.LastModified
+
     def set_LastModified(self, LastModified):
         self.LastModified = LastModified
+
     def get_Owner(self):
         return self.Owner
+
     def set_Owner(self, Owner):
         self.Owner = Owner
+
     def hasContent_(self):
         if (
-            self.Key is not None or
-            self.VersionId is not None or
-            self.IsLatest is not None or
-            self.LastModified is not None or
-            self.Owner is not None
+                self.Key is not None or
+                self.VersionId is not None or
+                self.IsLatest is not None or
+                self.LastModified is not None or
+                self.Owner is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteMarkerEntry', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteMarkerEntry',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('DeleteMarkerEntry')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6523,37 +8080,50 @@ class DeleteMarkerEntry(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='DeleteMarkerEntry')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteMarkerEntry', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='DeleteMarkerEntry',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='DeleteMarkerEntry'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteMarkerEntry', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='DeleteMarkerEntry',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.VersionId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersionId>%s</%sVersionId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.VersionId), input_name='VersionId')), namespaceprefix_ , eol_))
+            outfile.write('<%sVersionId>%s</%sVersionId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.VersionId), input_name='VersionId')), namespaceprefix_, eol_))
         if self.IsLatest is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIsLatest>%s</%sIsLatest>%s' % (namespaceprefix_ , self.gds_format_boolean(self.IsLatest, input_name='IsLatest'), namespaceprefix_ , eol_))
+            outfile.write('<%sIsLatest>%s</%sIsLatest>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.IsLatest, input_name='IsLatest'), namespaceprefix_, eol_))
         if self.LastModified is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (namespaceprefix_ , self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_ , eol_))
+            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_,
+            eol_))
         if self.Owner is not None:
-            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner', pretty_print=pretty_print)
+            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner',
+                              pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6561,8 +8131,10 @@ class DeleteMarkerEntry(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Key':
             value_ = child_.text
@@ -6588,16 +8160,20 @@ class DeleteMarkerEntry(GeneratedsSuper):
             obj_.build(child_)
             self.Owner = obj_
             obj_.original_tagname_ = 'Owner'
+
+
 # end class DeleteMarkerEntry
 
 
 class PrefixEntry(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Prefix=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Prefix = Prefix
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6608,19 +8184,26 @@ class PrefixEntry(GeneratedsSuper):
             return PrefixEntry.subclass(*args_, **kwargs_)
         else:
             return PrefixEntry(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Prefix(self):
         return self.Prefix
+
     def set_Prefix(self, Prefix):
         self.Prefix = Prefix
+
     def hasContent_(self):
         if (
-            self.Prefix is not None
+                self.Prefix is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PrefixEntry', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PrefixEntry',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PrefixEntry')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6631,26 +8214,33 @@ class PrefixEntry(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PrefixEntry')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PrefixEntry', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PrefixEntry'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PrefixEntry', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PrefixEntry',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Prefix is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')), namespaceprefix_ , eol_))
+            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6658,21 +8248,27 @@ class PrefixEntry(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Prefix':
             value_ = child_.text
             value_ = self.gds_parse_string(value_, node, 'Prefix')
             value_ = self.gds_validate_string(value_, node, 'Prefix')
             self.Prefix = value_
+
+
 # end class PrefixEntry
 
 
 class ListBucketResult(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Metadata=None, Name=None, Prefix=None, Marker=None, NextMarker=None, MaxKeys=None, Delimiter=None, IsTruncated=None, Contents=None, CommonPrefixes=None, **kwargs_):
+
+    def __init__(self, Metadata=None, Name=None, Prefix=None, Marker=None, NextMarker=None, MaxKeys=None,
+                 Delimiter=None, IsTruncated=None, Contents=None, CommonPrefixes=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         if Metadata is None:
@@ -6694,6 +8290,7 @@ class ListBucketResult(GeneratedsSuper):
             self.CommonPrefixes = []
         else:
             self.CommonPrefixes = CommonPrefixes
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6704,82 +8301,116 @@ class ListBucketResult(GeneratedsSuper):
             return ListBucketResult.subclass(*args_, **kwargs_)
         else:
             return ListBucketResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Metadata(self):
         return self.Metadata
+
     def set_Metadata(self, Metadata):
         self.Metadata = Metadata
+
     def add_Metadata(self, value):
         self.Metadata.append(value)
+
     def insert_Metadata_at(self, index, value):
         self.Metadata.insert(index, value)
+
     def replace_Metadata_at(self, index, value):
         self.Metadata[index] = value
+
     def get_Name(self):
         return self.Name
+
     def set_Name(self, Name):
         self.Name = Name
+
     def get_Prefix(self):
         return self.Prefix
+
     def set_Prefix(self, Prefix):
         self.Prefix = Prefix
+
     def get_Marker(self):
         return self.Marker
+
     def set_Marker(self, Marker):
         self.Marker = Marker
+
     def get_NextMarker(self):
         return self.NextMarker
+
     def set_NextMarker(self, NextMarker):
         self.NextMarker = NextMarker
+
     def get_MaxKeys(self):
         return self.MaxKeys
+
     def set_MaxKeys(self, MaxKeys):
         self.MaxKeys = MaxKeys
+
     def get_Delimiter(self):
         return self.Delimiter
+
     def set_Delimiter(self, Delimiter):
         self.Delimiter = Delimiter
+
     def get_IsTruncated(self):
         return self.IsTruncated
+
     def set_IsTruncated(self, IsTruncated):
         self.IsTruncated = IsTruncated
+
     def get_Contents(self):
         return self.Contents
+
     def set_Contents(self, Contents):
         self.Contents = Contents
+
     def add_Contents(self, value):
         self.Contents.append(value)
+
     def insert_Contents_at(self, index, value):
         self.Contents.insert(index, value)
+
     def replace_Contents_at(self, index, value):
         self.Contents[index] = value
+
     def get_CommonPrefixes(self):
         return self.CommonPrefixes
+
     def set_CommonPrefixes(self, CommonPrefixes):
         self.CommonPrefixes = CommonPrefixes
+
     def add_CommonPrefixes(self, value):
         self.CommonPrefixes.append(value)
+
     def insert_CommonPrefixes_at(self, index, value):
         self.CommonPrefixes.insert(index, value)
+
     def replace_CommonPrefixes_at(self, index, value):
         self.CommonPrefixes[index] = value
+
     def hasContent_(self):
         if (
-            self.Metadata or
-            self.Name is not None or
-            self.Prefix is not None or
-            self.Marker is not None or
-            self.NextMarker is not None or
-            self.MaxKeys is not None or
-            self.Delimiter is not None or
-            self.IsTruncated is not None or
-            self.Contents or
-            self.CommonPrefixes
+                self.Metadata or
+                self.Name is not None or
+                self.Prefix is not None or
+                self.Marker is not None or
+                self.NextMarker is not None or
+                self.MaxKeys is not None or
+                self.Delimiter is not None or
+                self.IsTruncated is not None or
+                self.Contents or
+                self.CommonPrefixes
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListBucketResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6790,50 +8421,70 @@ class ListBucketResult(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListBucketResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListBucketResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListBucketResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListBucketResult'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResult', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListBucketResult',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Metadata_ in self.Metadata:
-            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata', pretty_print=pretty_print)
+            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata',
+                             pretty_print=pretty_print)
         if self.Name is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sName>%s</%sName>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespaceprefix_ , eol_))
+            outfile.write('<%sName>%s</%sName>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')),
+            namespaceprefix_, eol_))
         if self.Prefix is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')), namespaceprefix_ , eol_))
+            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')),
+            namespaceprefix_, eol_))
         if self.Marker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMarker>%s</%sMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Marker), input_name='Marker')), namespaceprefix_ , eol_))
+            outfile.write('<%sMarker>%s</%sMarker>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Marker), input_name='Marker')),
+            namespaceprefix_, eol_))
         if self.NextMarker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNextMarker>%s</%sNextMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.NextMarker), input_name='NextMarker')), namespaceprefix_ , eol_))
+            outfile.write('<%sNextMarker>%s</%sNextMarker>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.NextMarker), input_name='NextMarker')), namespaceprefix_, eol_))
         if self.MaxKeys is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMaxKeys>%s</%sMaxKeys>%s' % (namespaceprefix_ , self.gds_format_integer(self.MaxKeys, input_name='MaxKeys'), namespaceprefix_ , eol_))
+            outfile.write('<%sMaxKeys>%s</%sMaxKeys>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.MaxKeys, input_name='MaxKeys'), namespaceprefix_, eol_))
         if self.Delimiter is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDelimiter>%s</%sDelimiter>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Delimiter), input_name='Delimiter')), namespaceprefix_ , eol_))
+            outfile.write('<%sDelimiter>%s</%sDelimiter>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Delimiter), input_name='Delimiter')), namespaceprefix_, eol_))
         if self.IsTruncated is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIsTruncated>%s</%sIsTruncated>%s' % (namespaceprefix_ , self.gds_format_boolean(self.IsTruncated, input_name='IsTruncated'), namespaceprefix_ , eol_))
+            outfile.write('<%sIsTruncated>%s</%sIsTruncated>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.IsTruncated, input_name='IsTruncated'), namespaceprefix_,
+            eol_))
         for Contents_ in self.Contents:
-            Contents_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Contents', pretty_print=pretty_print)
+            Contents_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Contents',
+                             pretty_print=pretty_print)
         for CommonPrefixes_ in self.CommonPrefixes:
-            CommonPrefixes_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CommonPrefixes', pretty_print=pretty_print)
+            CommonPrefixes_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CommonPrefixes',
+                                   pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6841,8 +8492,10 @@ class ListBucketResult(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Metadata':
             obj_ = MetadataEntry.factory(parent_object_=self)
@@ -6894,13 +8547,18 @@ class ListBucketResult(GeneratedsSuper):
             obj_.build(child_)
             self.CommonPrefixes.append(obj_)
             obj_.original_tagname_ = 'CommonPrefixes'
+
+
 # end class ListBucketResult
 
 
 class ListVersionsResult(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, Metadata=None, Name=None, Prefix=None, KeyMarker=None, VersionIdMarker=None, NextKeyMarker=None, NextVersionIdMarker=None, MaxKeys=None, Delimiter=None, IsTruncated=None, Version=None, DeleteMarker=None, CommonPrefixes=None, **kwargs_):
+
+    def __init__(self, Metadata=None, Name=None, Prefix=None, KeyMarker=None, VersionIdMarker=None, NextKeyMarker=None,
+                 NextVersionIdMarker=None, MaxKeys=None, Delimiter=None, IsTruncated=None, Version=None,
+                 DeleteMarker=None, CommonPrefixes=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         if Metadata is None:
@@ -6928,6 +8586,7 @@ class ListVersionsResult(GeneratedsSuper):
             self.CommonPrefixes = []
         else:
             self.CommonPrefixes = CommonPrefixes
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6938,103 +8597,146 @@ class ListVersionsResult(GeneratedsSuper):
             return ListVersionsResult.subclass(*args_, **kwargs_)
         else:
             return ListVersionsResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Metadata(self):
         return self.Metadata
+
     def set_Metadata(self, Metadata):
         self.Metadata = Metadata
+
     def add_Metadata(self, value):
         self.Metadata.append(value)
+
     def insert_Metadata_at(self, index, value):
         self.Metadata.insert(index, value)
+
     def replace_Metadata_at(self, index, value):
         self.Metadata[index] = value
+
     def get_Name(self):
         return self.Name
+
     def set_Name(self, Name):
         self.Name = Name
+
     def get_Prefix(self):
         return self.Prefix
+
     def set_Prefix(self, Prefix):
         self.Prefix = Prefix
+
     def get_KeyMarker(self):
         return self.KeyMarker
+
     def set_KeyMarker(self, KeyMarker):
         self.KeyMarker = KeyMarker
+
     def get_VersionIdMarker(self):
         return self.VersionIdMarker
+
     def set_VersionIdMarker(self, VersionIdMarker):
         self.VersionIdMarker = VersionIdMarker
+
     def get_NextKeyMarker(self):
         return self.NextKeyMarker
+
     def set_NextKeyMarker(self, NextKeyMarker):
         self.NextKeyMarker = NextKeyMarker
+
     def get_NextVersionIdMarker(self):
         return self.NextVersionIdMarker
+
     def set_NextVersionIdMarker(self, NextVersionIdMarker):
         self.NextVersionIdMarker = NextVersionIdMarker
+
     def get_MaxKeys(self):
         return self.MaxKeys
+
     def set_MaxKeys(self, MaxKeys):
         self.MaxKeys = MaxKeys
+
     def get_Delimiter(self):
         return self.Delimiter
+
     def set_Delimiter(self, Delimiter):
         self.Delimiter = Delimiter
+
     def get_IsTruncated(self):
         return self.IsTruncated
+
     def set_IsTruncated(self, IsTruncated):
         self.IsTruncated = IsTruncated
+
     def get_Version(self):
         return self.Version
+
     def set_Version(self, Version):
         self.Version = Version
+
     def add_Version(self, value):
         self.Version.append(value)
+
     def insert_Version_at(self, index, value):
         self.Version.insert(index, value)
+
     def replace_Version_at(self, index, value):
         self.Version[index] = value
+
     def get_DeleteMarker(self):
         return self.DeleteMarker
+
     def set_DeleteMarker(self, DeleteMarker):
         self.DeleteMarker = DeleteMarker
+
     def add_DeleteMarker(self, value):
         self.DeleteMarker.append(value)
+
     def insert_DeleteMarker_at(self, index, value):
         self.DeleteMarker.insert(index, value)
+
     def replace_DeleteMarker_at(self, index, value):
         self.DeleteMarker[index] = value
+
     def get_CommonPrefixes(self):
         return self.CommonPrefixes
+
     def set_CommonPrefixes(self, CommonPrefixes):
         self.CommonPrefixes = CommonPrefixes
+
     def add_CommonPrefixes(self, value):
         self.CommonPrefixes.append(value)
+
     def insert_CommonPrefixes_at(self, index, value):
         self.CommonPrefixes.insert(index, value)
+
     def replace_CommonPrefixes_at(self, index, value):
         self.CommonPrefixes[index] = value
+
     def hasContent_(self):
         if (
-            self.Metadata or
-            self.Name is not None or
-            self.Prefix is not None or
-            self.KeyMarker is not None or
-            self.VersionIdMarker is not None or
-            self.NextKeyMarker is not None or
-            self.NextVersionIdMarker is not None or
-            self.MaxKeys is not None or
-            self.Delimiter is not None or
-            self.IsTruncated is not None or
-            self.Version or
-            self.DeleteMarker or
-            self.CommonPrefixes
+                self.Metadata or
+                self.Name is not None or
+                self.Prefix is not None or
+                self.KeyMarker is not None or
+                self.VersionIdMarker is not None or
+                self.NextKeyMarker is not None or
+                self.NextVersionIdMarker is not None or
+                self.MaxKeys is not None or
+                self.Delimiter is not None or
+                self.IsTruncated is not None or
+                self.Version or
+                self.DeleteMarker or
+                self.CommonPrefixes
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListVersionsResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7045,58 +8747,83 @@ class ListVersionsResult(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListVersionsResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListVersionsResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListVersionsResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListVersionsResult'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResult', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListVersionsResult',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Metadata_ in self.Metadata:
-            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata', pretty_print=pretty_print)
+            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata',
+                             pretty_print=pretty_print)
         if self.Name is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sName>%s</%sName>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespaceprefix_ , eol_))
+            outfile.write('<%sName>%s</%sName>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')),
+            namespaceprefix_, eol_))
         if self.Prefix is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')), namespaceprefix_ , eol_))
+            outfile.write('<%sPrefix>%s</%sPrefix>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Prefix), input_name='Prefix')),
+            namespaceprefix_, eol_))
         if self.KeyMarker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyMarker>%s</%sKeyMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.KeyMarker), input_name='KeyMarker')), namespaceprefix_ , eol_))
+            outfile.write('<%sKeyMarker>%s</%sKeyMarker>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.KeyMarker), input_name='KeyMarker')), namespaceprefix_, eol_))
         if self.VersionIdMarker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersionIdMarker>%s</%sVersionIdMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.VersionIdMarker), input_name='VersionIdMarker')), namespaceprefix_ , eol_))
+            outfile.write('<%sVersionIdMarker>%s</%sVersionIdMarker>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.VersionIdMarker), input_name='VersionIdMarker')),
+                                                                           namespaceprefix_, eol_))
         if self.NextKeyMarker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNextKeyMarker>%s</%sNextKeyMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.NextKeyMarker), input_name='NextKeyMarker')), namespaceprefix_ , eol_))
+            outfile.write('<%sNextKeyMarker>%s</%sNextKeyMarker>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.NextKeyMarker), input_name='NextKeyMarker')), namespaceprefix_,
+                                                                       eol_))
         if self.NextVersionIdMarker is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNextVersionIdMarker>%s</%sNextVersionIdMarker>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.NextVersionIdMarker), input_name='NextVersionIdMarker')), namespaceprefix_ , eol_))
+            outfile.write('<%sNextVersionIdMarker>%s</%sNextVersionIdMarker>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.NextVersionIdMarker), input_name='NextVersionIdMarker')),
+                                                                                   namespaceprefix_, eol_))
         if self.MaxKeys is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMaxKeys>%s</%sMaxKeys>%s' % (namespaceprefix_ , self.gds_format_integer(self.MaxKeys, input_name='MaxKeys'), namespaceprefix_ , eol_))
+            outfile.write('<%sMaxKeys>%s</%sMaxKeys>%s' % (
+            namespaceprefix_, self.gds_format_integer(self.MaxKeys, input_name='MaxKeys'), namespaceprefix_, eol_))
         if self.Delimiter is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDelimiter>%s</%sDelimiter>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Delimiter), input_name='Delimiter')), namespaceprefix_ , eol_))
+            outfile.write('<%sDelimiter>%s</%sDelimiter>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Delimiter), input_name='Delimiter')), namespaceprefix_, eol_))
         if self.IsTruncated is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIsTruncated>%s</%sIsTruncated>%s' % (namespaceprefix_ , self.gds_format_boolean(self.IsTruncated, input_name='IsTruncated'), namespaceprefix_ , eol_))
+            outfile.write('<%sIsTruncated>%s</%sIsTruncated>%s' % (
+            namespaceprefix_, self.gds_format_boolean(self.IsTruncated, input_name='IsTruncated'), namespaceprefix_,
+            eol_))
         for Version_ in self.Version:
-            Version_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Version', pretty_print=pretty_print)
+            Version_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Version',
+                            pretty_print=pretty_print)
         for DeleteMarker_ in self.DeleteMarker:
-            DeleteMarker_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='DeleteMarker', pretty_print=pretty_print)
+            DeleteMarker_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='DeleteMarker',
+                                 pretty_print=pretty_print)
         for CommonPrefixes_ in self.CommonPrefixes:
-            CommonPrefixes_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CommonPrefixes', pretty_print=pretty_print)
+            CommonPrefixes_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CommonPrefixes',
+                                   pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7104,8 +8831,10 @@ class ListVersionsResult(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Metadata':
             obj_ = MetadataEntry.factory(parent_object_=self)
@@ -7172,12 +8901,15 @@ class ListVersionsResult(GeneratedsSuper):
             obj_.build(child_)
             self.CommonPrefixes.append(obj_)
             obj_.original_tagname_ = 'CommonPrefixes'
+
+
 # end class ListVersionsResult
 
 
 class ListAllMyBuckets(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, AWSAccessKeyId=None, Timestamp=None, Signature=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -7188,6 +8920,7 @@ class ListAllMyBuckets(GeneratedsSuper):
             initvalue_ = Timestamp
         self.Timestamp = initvalue_
         self.Signature = Signature
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7198,29 +8931,40 @@ class ListAllMyBuckets(GeneratedsSuper):
             return ListAllMyBuckets.subclass(*args_, **kwargs_)
         else:
             return ListAllMyBuckets(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def hasContent_(self):
         if (
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBuckets', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBuckets',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListAllMyBuckets')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7231,32 +8975,42 @@ class ListAllMyBuckets(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListAllMyBuckets')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBuckets', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBuckets',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListAllMyBuckets'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBuckets', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBuckets',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7264,8 +9018,10 @@ class ListAllMyBuckets(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'AWSAccessKeyId':
             value_ = child_.text
@@ -7281,16 +9037,20 @@ class ListAllMyBuckets(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Signature')
             value_ = self.gds_validate_string(value_, node, 'Signature')
             self.Signature = value_
+
+
 # end class ListAllMyBuckets
 
 
 class ListAllMyBucketsResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, ListAllMyBucketsResponse_member=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ListAllMyBucketsResponse = ListAllMyBucketsResponse_member
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7301,19 +9061,26 @@ class ListAllMyBucketsResponse(GeneratedsSuper):
             return ListAllMyBucketsResponse.subclass(*args_, **kwargs_)
         else:
             return ListAllMyBucketsResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_ListAllMyBucketsResponse(self):
         return self.ListAllMyBucketsResponse
+
     def set_ListAllMyBucketsResponse(self, ListAllMyBucketsResponse):
         self.ListAllMyBucketsResponse = ListAllMyBucketsResponse
+
     def hasContent_(self):
         if (
-            self.ListAllMyBucketsResponse is not None
+                self.ListAllMyBucketsResponse is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListAllMyBucketsResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7324,25 +9091,33 @@ class ListAllMyBucketsResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListAllMyBucketsResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListAllMyBucketsResponse'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='ListAllMyBucketsResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='ListAllMyBucketsResponse', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ListAllMyBucketsResponse is not None:
-            self.ListAllMyBucketsResponse.export(outfile, level, namespaceprefix_, namespacedef_='', name_='ListAllMyBucketsResponse', pretty_print=pretty_print)
+            self.ListAllMyBucketsResponse.export(outfile, level, namespaceprefix_, namespacedef_='',
+                                                 name_='ListAllMyBucketsResponse', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7350,20 +9125,25 @@ class ListAllMyBucketsResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ListAllMyBucketsResponse':
             obj_ = ListAllMyBucketsResult.factory(parent_object_=self)
             obj_.build(child_)
             self.ListAllMyBucketsResponse = obj_
             obj_.original_tagname_ = 'ListAllMyBucketsResponse'
+
+
 # end class ListAllMyBucketsResponse
 
 
 class ListAllMyBucketsEntry(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Name=None, CreationDate=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -7373,6 +9153,7 @@ class ListAllMyBucketsEntry(GeneratedsSuper):
         else:
             initvalue_ = CreationDate
         self.CreationDate = initvalue_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7383,24 +9164,33 @@ class ListAllMyBucketsEntry(GeneratedsSuper):
             return ListAllMyBucketsEntry.subclass(*args_, **kwargs_)
         else:
             return ListAllMyBucketsEntry(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Name(self):
         return self.Name
+
     def set_Name(self, Name):
         self.Name = Name
+
     def get_CreationDate(self):
         return self.CreationDate
+
     def set_CreationDate(self, CreationDate):
         self.CreationDate = CreationDate
+
     def hasContent_(self):
         if (
-            self.Name is not None or
-            self.CreationDate is not None
+                self.Name is not None or
+                self.CreationDate is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsEntry', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsEntry',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListAllMyBucketsEntry')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7411,29 +9201,39 @@ class ListAllMyBucketsEntry(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListAllMyBucketsEntry')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsEntry', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsEntry',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListAllMyBucketsEntry'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsEntry', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='ListAllMyBucketsEntry', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Name is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sName>%s</%sName>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespaceprefix_ , eol_))
+            outfile.write('<%sName>%s</%sName>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')),
+            namespaceprefix_, eol_))
         if self.CreationDate is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCreationDate>%s</%sCreationDate>%s' % (namespaceprefix_ , self.gds_format_datetime(self.CreationDate, input_name='CreationDate'), namespaceprefix_ , eol_))
+            outfile.write('<%sCreationDate>%s</%sCreationDate>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.CreationDate, input_name='CreationDate'), namespaceprefix_,
+            eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7441,8 +9241,10 @@ class ListAllMyBucketsEntry(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Name':
             value_ = child_.text
@@ -7453,17 +9255,21 @@ class ListAllMyBucketsEntry(GeneratedsSuper):
             sval_ = child_.text
             dval_ = self.gds_parse_datetime(sval_)
             self.CreationDate = dval_
+
+
 # end class ListAllMyBucketsEntry
 
 
 class ListAllMyBucketsResult(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Owner=None, Buckets=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Owner = Owner
         self.Buckets = Buckets
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7474,24 +9280,33 @@ class ListAllMyBucketsResult(GeneratedsSuper):
             return ListAllMyBucketsResult.subclass(*args_, **kwargs_)
         else:
             return ListAllMyBucketsResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Owner(self):
         return self.Owner
+
     def set_Owner(self, Owner):
         self.Owner = Owner
+
     def get_Buckets(self):
         return self.Buckets
+
     def set_Buckets(self, Buckets):
         self.Buckets = Buckets
+
     def hasContent_(self):
         if (
-            self.Owner is not None or
-            self.Buckets is not None
+                self.Owner is not None or
+                self.Buckets is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListAllMyBucketsResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7502,27 +9317,35 @@ class ListAllMyBucketsResult(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListAllMyBucketsResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListAllMyBucketsResult'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsResult', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='ListAllMyBucketsResult', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Owner is not None:
-            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner', pretty_print=pretty_print)
+            self.Owner.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Owner',
+                              pretty_print=pretty_print)
         if self.Buckets is not None:
-            self.Buckets.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Buckets', pretty_print=pretty_print)
+            self.Buckets.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Buckets',
+                                pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7530,8 +9353,10 @@ class ListAllMyBucketsResult(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Owner':
             obj_ = CanonicalUser.factory(parent_object_=self)
@@ -7543,12 +9368,15 @@ class ListAllMyBucketsResult(GeneratedsSuper):
             obj_.build(child_)
             self.Buckets = obj_
             obj_.original_tagname_ = 'Buckets'
+
+
 # end class ListAllMyBucketsResult
 
 
 class ListAllMyBucketsList(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Bucket=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -7556,6 +9384,7 @@ class ListAllMyBucketsList(GeneratedsSuper):
             self.Bucket = []
         else:
             self.Bucket = Bucket
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7566,25 +9395,35 @@ class ListAllMyBucketsList(GeneratedsSuper):
             return ListAllMyBucketsList.subclass(*args_, **kwargs_)
         else:
             return ListAllMyBucketsList(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def add_Bucket(self, value):
         self.Bucket.append(value)
+
     def insert_Bucket_at(self, index, value):
         self.Bucket.insert(index, value)
+
     def replace_Bucket_at(self, index, value):
         self.Bucket[index] = value
+
     def hasContent_(self):
         if (
-            self.Bucket
+                self.Bucket
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsList', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsList',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListAllMyBucketsList')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7595,25 +9434,32 @@ class ListAllMyBucketsList(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ListAllMyBucketsList')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsList', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='ListAllMyBucketsList',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ListAllMyBucketsList'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='ListAllMyBucketsList', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='ListAllMyBucketsList', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Bucket_ in self.Bucket:
-            Bucket_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Bucket', pretty_print=pretty_print)
+            Bucket_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Bucket',
+                           pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7621,20 +9467,25 @@ class ListAllMyBucketsList(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Bucket':
             obj_ = ListAllMyBucketsEntry.factory(parent_object_=self)
             obj_.build(child_)
             self.Bucket.append(obj_)
             obj_.original_tagname_ = 'Bucket'
+
+
 # end class ListAllMyBucketsList
 
 
 class PostResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Location=None, Bucket=None, Key=None, ETag=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -7642,6 +9493,7 @@ class PostResponse(GeneratedsSuper):
         self.Bucket = Bucket
         self.Key = Key
         self.ETag = ETag
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7652,34 +9504,47 @@ class PostResponse(GeneratedsSuper):
             return PostResponse.subclass(*args_, **kwargs_)
         else:
             return PostResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Location(self):
         return self.Location
+
     def set_Location(self, Location):
         self.Location = Location
+
     def get_Bucket(self):
         return self.Bucket
+
     def set_Bucket(self, Bucket):
         self.Bucket = Bucket
+
     def get_Key(self):
         return self.Key
+
     def set_Key(self, Key):
         self.Key = Key
+
     def get_ETag(self):
         return self.ETag
+
     def set_ETag(self, ETag):
         self.ETag = ETag
+
     def hasContent_(self):
         if (
-            self.Location is not None or
-            self.Bucket is not None or
-            self.Key is not None or
-            self.ETag is not None
+                self.Location is not None or
+                self.Bucket is not None or
+                self.Key is not None or
+                self.ETag is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PostResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PostResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('PostResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7690,35 +9555,48 @@ class PostResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PostResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='PostResponse', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PostResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PostResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='PostResponse',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Location is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLocation>%s</%sLocation>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Location), input_name='Location')), namespaceprefix_ , eol_))
+            outfile.write('<%sLocation>%s</%sLocation>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Location), input_name='Location')),
+            namespaceprefix_, eol_))
         if self.Bucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sBucket>%s</%sBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sBucket>%s</%sBucket>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Bucket), input_name='Bucket')),
+            namespaceprefix_, eol_))
         if self.Key is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKey>%s</%sKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')), namespaceprefix_ , eol_))
+            outfile.write('<%sKey>%s</%sKey>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Key), input_name='Key')),
+            namespaceprefix_, eol_))
         if self.ETag is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sETag>%s</%sETag>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')), namespaceprefix_ , eol_))
+            outfile.write('<%sETag>%s</%sETag>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7726,8 +9604,10 @@ class PostResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Location':
             value_ = child_.text
@@ -7749,13 +9629,19 @@ class PostResponse(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'ETag')
             value_ = self.gds_validate_string(value_, node, 'ETag')
             self.ETag = value_
+
+
 # end class PostResponse
 
 
 class CopyObject(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, SourceBucket=None, SourceKey=None, DestinationBucket=None, DestinationKey=None, MetadataDirective=None, Metadata=None, AccessControlList=None, CopySourceIfModifiedSince=None, CopySourceIfUnmodifiedSince=None, CopySourceIfMatch=None, CopySourceIfNoneMatch=None, StorageClass=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
+
+    def __init__(self, SourceBucket=None, SourceKey=None, DestinationBucket=None, DestinationKey=None,
+                 MetadataDirective=None, Metadata=None, AccessControlList=None, CopySourceIfModifiedSince=None,
+                 CopySourceIfUnmodifiedSince=None, CopySourceIfMatch=None, CopySourceIfNoneMatch=None,
+                 StorageClass=None, AWSAccessKeyId=None, Timestamp=None, Signature=None, Credential=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.SourceBucket = SourceBucket
@@ -7797,6 +9683,7 @@ class CopyObject(GeneratedsSuper):
         self.Timestamp = initvalue_
         self.Signature = Signature
         self.Credential = Credential
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7807,89 +9694,132 @@ class CopyObject(GeneratedsSuper):
             return CopyObject.subclass(*args_, **kwargs_)
         else:
             return CopyObject(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_SourceBucket(self):
         return self.SourceBucket
+
     def set_SourceBucket(self, SourceBucket):
         self.SourceBucket = SourceBucket
+
     def get_SourceKey(self):
         return self.SourceKey
+
     def set_SourceKey(self, SourceKey):
         self.SourceKey = SourceKey
+
     def get_DestinationBucket(self):
         return self.DestinationBucket
+
     def set_DestinationBucket(self, DestinationBucket):
         self.DestinationBucket = DestinationBucket
+
     def get_DestinationKey(self):
         return self.DestinationKey
+
     def set_DestinationKey(self, DestinationKey):
         self.DestinationKey = DestinationKey
+
     def get_MetadataDirective(self):
         return self.MetadataDirective
+
     def set_MetadataDirective(self, MetadataDirective):
         self.MetadataDirective = MetadataDirective
+
     def get_Metadata(self):
         return self.Metadata
+
     def set_Metadata(self, Metadata):
         self.Metadata = Metadata
+
     def add_Metadata(self, value):
         self.Metadata.append(value)
+
     def insert_Metadata_at(self, index, value):
         self.Metadata.insert(index, value)
+
     def replace_Metadata_at(self, index, value):
         self.Metadata[index] = value
+
     def get_AccessControlList(self):
         return self.AccessControlList
+
     def set_AccessControlList(self, AccessControlList):
         self.AccessControlList = AccessControlList
+
     def get_CopySourceIfModifiedSince(self):
         return self.CopySourceIfModifiedSince
+
     def set_CopySourceIfModifiedSince(self, CopySourceIfModifiedSince):
         self.CopySourceIfModifiedSince = CopySourceIfModifiedSince
+
     def get_CopySourceIfUnmodifiedSince(self):
         return self.CopySourceIfUnmodifiedSince
+
     def set_CopySourceIfUnmodifiedSince(self, CopySourceIfUnmodifiedSince):
         self.CopySourceIfUnmodifiedSince = CopySourceIfUnmodifiedSince
+
     def get_CopySourceIfMatch(self):
         return self.CopySourceIfMatch
+
     def set_CopySourceIfMatch(self, CopySourceIfMatch):
         self.CopySourceIfMatch = CopySourceIfMatch
+
     def add_CopySourceIfMatch(self, value):
         self.CopySourceIfMatch.append(value)
+
     def insert_CopySourceIfMatch_at(self, index, value):
         self.CopySourceIfMatch.insert(index, value)
+
     def replace_CopySourceIfMatch_at(self, index, value):
         self.CopySourceIfMatch[index] = value
+
     def get_CopySourceIfNoneMatch(self):
         return self.CopySourceIfNoneMatch
+
     def set_CopySourceIfNoneMatch(self, CopySourceIfNoneMatch):
         self.CopySourceIfNoneMatch = CopySourceIfNoneMatch
+
     def add_CopySourceIfNoneMatch(self, value):
         self.CopySourceIfNoneMatch.append(value)
+
     def insert_CopySourceIfNoneMatch_at(self, index, value):
         self.CopySourceIfNoneMatch.insert(index, value)
+
     def replace_CopySourceIfNoneMatch_at(self, index, value):
         self.CopySourceIfNoneMatch[index] = value
+
     def get_StorageClass(self):
         return self.StorageClass
+
     def set_StorageClass(self, StorageClass):
         self.StorageClass = StorageClass
+
     def get_AWSAccessKeyId(self):
         return self.AWSAccessKeyId
+
     def set_AWSAccessKeyId(self, AWSAccessKeyId):
         self.AWSAccessKeyId = AWSAccessKeyId
+
     def get_Timestamp(self):
         return self.Timestamp
+
     def set_Timestamp(self, Timestamp):
         self.Timestamp = Timestamp
+
     def get_Signature(self):
         return self.Signature
+
     def set_Signature(self, Signature):
         self.Signature = Signature
+
     def get_Credential(self):
         return self.Credential
+
     def set_Credential(self, Credential):
         self.Credential = Credential
+
     def validate_MetadataDirective(self, value):
         # Validate type MetadataDirective, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -7901,7 +9831,9 @@ class CopyObject(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MetadataDirective' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MetadataDirective' % {
+                    "value": value.encode("utf-8")})
+
     def validate_StorageClass(self, value):
         # Validate type StorageClass, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -7913,30 +9845,35 @@ class CopyObject(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on StorageClass' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.SourceBucket is not None or
-            self.SourceKey is not None or
-            self.DestinationBucket is not None or
-            self.DestinationKey is not None or
-            self.MetadataDirective is not None or
-            self.Metadata or
-            self.AccessControlList is not None or
-            self.CopySourceIfModifiedSince is not None or
-            self.CopySourceIfUnmodifiedSince is not None or
-            self.CopySourceIfMatch or
-            self.CopySourceIfNoneMatch or
-            self.StorageClass is not None or
-            self.AWSAccessKeyId is not None or
-            self.Timestamp is not None or
-            self.Signature is not None or
-            self.Credential is not None
+                self.SourceBucket is not None or
+                self.SourceKey is not None or
+                self.DestinationBucket is not None or
+                self.DestinationKey is not None or
+                self.MetadataDirective is not None or
+                self.Metadata or
+                self.AccessControlList is not None or
+                self.CopySourceIfModifiedSince is not None or
+                self.CopySourceIfUnmodifiedSince is not None or
+                self.CopySourceIfMatch or
+                self.CopySourceIfNoneMatch or
+                self.StorageClass is not None or
+                self.AWSAccessKeyId is not None or
+                self.Timestamp is not None or
+                self.Signature is not None or
+                self.Credential is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObject', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObject',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CopyObject')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7947,69 +9884,109 @@ class CopyObject(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CopyObject')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
+            outfile.write('>%s' % (eol_,))
             self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CopyObject', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CopyObject'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObject', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObject',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.SourceBucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSourceBucket>%s</%sSourceBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.SourceBucket), input_name='SourceBucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sSourceBucket>%s</%sSourceBucket>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SourceBucket), input_name='SourceBucket')), namespaceprefix_,
+                                                                     eol_))
         if self.SourceKey is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSourceKey>%s</%sSourceKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.SourceKey), input_name='SourceKey')), namespaceprefix_ , eol_))
+            outfile.write('<%sSourceKey>%s</%sSourceKey>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SourceKey), input_name='SourceKey')), namespaceprefix_, eol_))
         if self.DestinationBucket is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDestinationBucket>%s</%sDestinationBucket>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.DestinationBucket), input_name='DestinationBucket')), namespaceprefix_ , eol_))
+            outfile.write('<%sDestinationBucket>%s</%sDestinationBucket>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.DestinationBucket), input_name='DestinationBucket')),
+                                                                               namespaceprefix_, eol_))
         if self.DestinationKey is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDestinationKey>%s</%sDestinationKey>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.DestinationKey), input_name='DestinationKey')), namespaceprefix_ , eol_))
+            outfile.write('<%sDestinationKey>%s</%sDestinationKey>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.DestinationKey), input_name='DestinationKey')), namespaceprefix_,
+                                                                         eol_))
         if self.MetadataDirective is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataDirective>%s</%sMetadataDirective>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.MetadataDirective), input_name='MetadataDirective')), namespaceprefix_ , eol_))
+            outfile.write('<%sMetadataDirective>%s</%sMetadataDirective>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.MetadataDirective), input_name='MetadataDirective')),
+                                                                               namespaceprefix_, eol_))
         for Metadata_ in self.Metadata:
-            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata', pretty_print=pretty_print)
+            Metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='Metadata',
+                             pretty_print=pretty_print)
         if self.AccessControlList is not None:
-            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList', pretty_print=pretty_print)
+            self.AccessControlList.export(outfile, level, namespaceprefix_, namespacedef_='', name_='AccessControlList',
+                                          pretty_print=pretty_print)
         if self.CopySourceIfModifiedSince is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCopySourceIfModifiedSince>%s</%sCopySourceIfModifiedSince>%s' % (namespaceprefix_ , self.gds_format_datetime(self.CopySourceIfModifiedSince, input_name='CopySourceIfModifiedSince'), namespaceprefix_ , eol_))
+            outfile.write('<%sCopySourceIfModifiedSince>%s</%sCopySourceIfModifiedSince>%s' % (namespaceprefix_,
+                                                                                               self.gds_format_datetime(
+                                                                                                   self.CopySourceIfModifiedSince,
+                                                                                                   input_name='CopySourceIfModifiedSince'),
+                                                                                               namespaceprefix_, eol_))
         if self.CopySourceIfUnmodifiedSince is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCopySourceIfUnmodifiedSince>%s</%sCopySourceIfUnmodifiedSince>%s' % (namespaceprefix_ , self.gds_format_datetime(self.CopySourceIfUnmodifiedSince, input_name='CopySourceIfUnmodifiedSince'), namespaceprefix_ , eol_))
+            outfile.write('<%sCopySourceIfUnmodifiedSince>%s</%sCopySourceIfUnmodifiedSince>%s' % (namespaceprefix_,
+                                                                                                   self.gds_format_datetime(
+                                                                                                       self.CopySourceIfUnmodifiedSince,
+                                                                                                       input_name='CopySourceIfUnmodifiedSince'),
+                                                                                                   namespaceprefix_,
+                                                                                                   eol_))
         for CopySourceIfMatch_ in self.CopySourceIfMatch:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCopySourceIfMatch>%s</%sCopySourceIfMatch>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(CopySourceIfMatch_), input_name='CopySourceIfMatch')), namespaceprefix_ , eol_))
+            outfile.write('<%sCopySourceIfMatch>%s</%sCopySourceIfMatch>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(CopySourceIfMatch_), input_name='CopySourceIfMatch')),
+                                                                               namespaceprefix_, eol_))
         for CopySourceIfNoneMatch_ in self.CopySourceIfNoneMatch:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCopySourceIfNoneMatch>%s</%sCopySourceIfNoneMatch>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(CopySourceIfNoneMatch_), input_name='CopySourceIfNoneMatch')), namespaceprefix_ , eol_))
+            outfile.write('<%sCopySourceIfNoneMatch>%s</%sCopySourceIfNoneMatch>%s' % (namespaceprefix_,
+                                                                                       self.gds_encode(
+                                                                                           self.gds_format_string(
+                                                                                               quote_xml(
+                                                                                                   CopySourceIfNoneMatch_),
+                                                                                               input_name='CopySourceIfNoneMatch')),
+                                                                                       namespaceprefix_, eol_))
         if self.StorageClass is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_ , eol_))
+            outfile.write('<%sStorageClass>%s</%sStorageClass>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.StorageClass), input_name='StorageClass')), namespaceprefix_,
+                                                                     eol_))
         if self.AWSAccessKeyId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_ , eol_))
+            outfile.write('<%sAWSAccessKeyId>%s</%sAWSAccessKeyId>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.AWSAccessKeyId), input_name='AWSAccessKeyId')), namespaceprefix_,
+                                                                         eol_))
         if self.Timestamp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (namespaceprefix_ , self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_ , eol_))
+            outfile.write('<%sTimestamp>%s</%sTimestamp>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.Timestamp, input_name='Timestamp'), namespaceprefix_, eol_))
         if self.Signature is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_ , eol_))
+            outfile.write('<%sSignature>%s</%sSignature>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Signature), input_name='Signature')), namespaceprefix_, eol_))
         if self.Credential is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_ , eol_))
+            outfile.write('<%sCredential>%s</%sCredential>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Credential), input_name='Credential')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8017,8 +9994,10 @@ class CopyObject(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'SourceBucket':
             value_ = child_.text
@@ -8101,16 +10080,20 @@ class CopyObject(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Credential')
             value_ = self.gds_validate_string(value_, node, 'Credential')
             self.Credential = value_
+
+
 # end class CopyObject
 
 
 class CopyObjectResponse(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, CopyObjectResult=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.CopyObjectResult = CopyObjectResult
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8121,19 +10104,26 @@ class CopyObjectResponse(GeneratedsSuper):
             return CopyObjectResponse.subclass(*args_, **kwargs_)
         else:
             return CopyObjectResponse(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_CopyObjectResult(self):
         return self.CopyObjectResult
+
     def set_CopyObjectResult(self, CopyObjectResult):
         self.CopyObjectResult = CopyObjectResult
+
     def hasContent_(self):
         if (
-            self.CopyObjectResult is not None
+                self.CopyObjectResult is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResponse', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResponse',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CopyObjectResponse')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8144,25 +10134,32 @@ class CopyObjectResponse(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CopyObjectResponse')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CopyObjectResponse', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CopyObjectResponse',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CopyObjectResponse'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResponse', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResponse',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.CopyObjectResult is not None:
-            self.CopyObjectResult.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CopyObjectResult', pretty_print=pretty_print)
+            self.CopyObjectResult.export(outfile, level, namespaceprefix_, namespacedef_='', name_='CopyObjectResult',
+                                         pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8170,20 +10167,25 @@ class CopyObjectResponse(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'CopyObjectResult':
             obj_ = CopyObjectResult.factory(parent_object_=self)
             obj_.build(child_)
             self.CopyObjectResult = obj_
             obj_.original_tagname_ = 'CopyObjectResult'
+
+
 # end class CopyObjectResponse
 
 
 class CopyObjectResult(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, LastModified=None, ETag=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -8193,6 +10195,7 @@ class CopyObjectResult(GeneratedsSuper):
             initvalue_ = LastModified
         self.LastModified = initvalue_
         self.ETag = ETag
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8203,24 +10206,33 @@ class CopyObjectResult(GeneratedsSuper):
             return CopyObjectResult.subclass(*args_, **kwargs_)
         else:
             return CopyObjectResult(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_LastModified(self):
         return self.LastModified
+
     def set_LastModified(self, LastModified):
         self.LastModified = LastModified
+
     def get_ETag(self):
         return self.ETag
+
     def set_ETag(self, ETag):
         self.ETag = ETag
+
     def hasContent_(self):
         if (
-            self.LastModified is not None or
-            self.ETag is not None
+                self.LastModified is not None or
+                self.ETag is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResult', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResult',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CopyObjectResult')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8231,29 +10243,39 @@ class CopyObjectResult(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CopyObjectResult')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CopyObjectResult', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='CopyObjectResult',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CopyObjectResult'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResult', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='CopyObjectResult',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.LastModified is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (namespaceprefix_ , self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_ , eol_))
+            outfile.write('<%sLastModified>%s</%sLastModified>%s' % (
+            namespaceprefix_, self.gds_format_datetime(self.LastModified, input_name='LastModified'), namespaceprefix_,
+            eol_))
         if self.ETag is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sETag>%s</%sETag>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')), namespaceprefix_ , eol_))
+            outfile.write('<%sETag>%s</%sETag>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.ETag), input_name='ETag')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8261,8 +10283,10 @@ class CopyObjectResult(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'LastModified':
             sval_ = child_.text
@@ -8273,17 +10297,21 @@ class CopyObjectResult(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'ETag')
             value_ = self.gds_validate_string(value_, node, 'ETag')
             self.ETag = value_
+
+
 # end class CopyObjectResult
 
 
 class RequestPaymentConfiguration(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Payer=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.Payer = Payer
         self.validate_Payer(self.Payer)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8294,11 +10322,15 @@ class RequestPaymentConfiguration(GeneratedsSuper):
             return RequestPaymentConfiguration.subclass(*args_, **kwargs_)
         else:
             return RequestPaymentConfiguration(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Payer(self):
         return self.Payer
+
     def set_Payer(self, Payer):
         self.Payer = Payer
+
     def validate_Payer(self, value):
         # Validate type Payer, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -8310,15 +10342,20 @@ class RequestPaymentConfiguration(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Payer' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Payer' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Payer is not None
+                self.Payer is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='RequestPaymentConfiguration', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='RequestPaymentConfiguration',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('RequestPaymentConfiguration')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8329,26 +10366,35 @@ class RequestPaymentConfiguration(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='RequestPaymentConfiguration')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='RequestPaymentConfiguration', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='RequestPaymentConfiguration',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='RequestPaymentConfiguration'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='RequestPaymentConfiguration'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='RequestPaymentConfiguration', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='RequestPaymentConfiguration', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Payer is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPayer>%s</%sPayer>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Payer), input_name='Payer')), namespaceprefix_ , eol_))
+            outfile.write('<%sPayer>%s</%sPayer>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Payer), input_name='Payer')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8356,8 +10402,10 @@ class RequestPaymentConfiguration(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Payer':
             value_ = child_.text
@@ -8366,12 +10414,15 @@ class RequestPaymentConfiguration(GeneratedsSuper):
             self.Payer = value_
             # validate type Payer
             self.validate_Payer(self.Payer)
+
+
 # end class RequestPaymentConfiguration
 
 
 class VersioningConfiguration(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Status=None, MfaDelete=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -8379,6 +10430,7 @@ class VersioningConfiguration(GeneratedsSuper):
         self.validate_VersioningStatus(self.Status)
         self.MfaDelete = MfaDelete
         self.validate_MfaDeleteStatus(self.MfaDelete)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8389,15 +10441,21 @@ class VersioningConfiguration(GeneratedsSuper):
             return VersioningConfiguration.subclass(*args_, **kwargs_)
         else:
             return VersioningConfiguration(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Status(self):
         return self.Status
+
     def set_Status(self, Status):
         self.Status = Status
+
     def get_MfaDelete(self):
         return self.MfaDelete
+
     def set_MfaDelete(self, MfaDelete):
         self.MfaDelete = MfaDelete
+
     def validate_VersioningStatus(self, value):
         # Validate type VersioningStatus, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -8409,7 +10467,9 @@ class VersioningConfiguration(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on VersioningStatus' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on VersioningStatus' % {
+                    "value": value.encode("utf-8")})
+
     def validate_MfaDeleteStatus(self, value):
         # Validate type MfaDeleteStatus, a restriction on xsd:string.
         if value is not None and Validate_simpletypes_:
@@ -8421,16 +10481,21 @@ class VersioningConfiguration(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MfaDeleteStatus' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MfaDeleteStatus' % {
+                    "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
-            self.Status is not None or
-            self.MfaDelete is not None
+                self.Status is not None or
+                self.MfaDelete is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersioningConfiguration', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersioningConfiguration',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('VersioningConfiguration')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8441,29 +10506,38 @@ class VersioningConfiguration(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='VersioningConfiguration')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='VersioningConfiguration', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='VersioningConfiguration',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='VersioningConfiguration'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='VersioningConfiguration', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='VersioningConfiguration', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Status is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStatus>%s</%sStatus>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Status), input_name='Status')), namespaceprefix_ , eol_))
+            outfile.write('<%sStatus>%s</%sStatus>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Status), input_name='Status')),
+            namespaceprefix_, eol_))
         if self.MfaDelete is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMfaDelete>%s</%sMfaDelete>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.MfaDelete), input_name='MfaDelete')), namespaceprefix_ , eol_))
+            outfile.write('<%sMfaDelete>%s</%sMfaDelete>%s' % (namespaceprefix_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.MfaDelete), input_name='MfaDelete')), namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8471,8 +10545,10 @@ class VersioningConfiguration(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Status':
             value_ = child_.text
@@ -8488,12 +10564,15 @@ class VersioningConfiguration(GeneratedsSuper):
             self.MfaDelete = value_
             # validate type MfaDeleteStatus
             self.validate_MfaDeleteStatus(self.MfaDelete)
+
+
 # end class VersioningConfiguration
 
 
 class NotificationConfiguration(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, TopicConfiguration=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -8501,6 +10580,7 @@ class NotificationConfiguration(GeneratedsSuper):
             self.TopicConfiguration = []
         else:
             self.TopicConfiguration = TopicConfiguration
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8511,25 +10591,35 @@ class NotificationConfiguration(GeneratedsSuper):
             return NotificationConfiguration.subclass(*args_, **kwargs_)
         else:
             return NotificationConfiguration(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_TopicConfiguration(self):
         return self.TopicConfiguration
+
     def set_TopicConfiguration(self, TopicConfiguration):
         self.TopicConfiguration = TopicConfiguration
+
     def add_TopicConfiguration(self, value):
         self.TopicConfiguration.append(value)
+
     def insert_TopicConfiguration_at(self, index, value):
         self.TopicConfiguration.insert(index, value)
+
     def replace_TopicConfiguration_at(self, index, value):
         self.TopicConfiguration[index] = value
+
     def hasContent_(self):
         if (
-            self.TopicConfiguration
+                self.TopicConfiguration
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='NotificationConfiguration', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='NotificationConfiguration',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('NotificationConfiguration')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8540,25 +10630,33 @@ class NotificationConfiguration(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='NotificationConfiguration')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='NotificationConfiguration', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='NotificationConfiguration',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='NotificationConfiguration'):
+            outfile.write('/>%s' % (eol_,))
+
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='',
+                         name_='NotificationConfiguration'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='NotificationConfiguration', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"',
+                       name_='NotificationConfiguration', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for TopicConfiguration_ in self.TopicConfiguration:
-            TopicConfiguration_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='TopicConfiguration', pretty_print=pretty_print)
+            TopicConfiguration_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='TopicConfiguration',
+                                       pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8566,20 +10664,25 @@ class NotificationConfiguration(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TopicConfiguration':
             obj_ = TopicConfiguration.factory(parent_object_=self)
             obj_.build(child_)
             self.TopicConfiguration.append(obj_)
             obj_.original_tagname_ = 'TopicConfiguration'
+
+
 # end class NotificationConfiguration
 
 
 class TopicConfiguration(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Topic=None, Event=None, **kwargs_):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
@@ -8588,6 +10691,7 @@ class TopicConfiguration(GeneratedsSuper):
             self.Event = []
         else:
             self.Event = Event
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8598,30 +10702,42 @@ class TopicConfiguration(GeneratedsSuper):
             return TopicConfiguration.subclass(*args_, **kwargs_)
         else:
             return TopicConfiguration(*args_, **kwargs_)
+
     factory = staticmethod(factory)
+
     def get_Topic(self):
         return self.Topic
+
     def set_Topic(self, Topic):
         self.Topic = Topic
+
     def get_Event(self):
         return self.Event
+
     def set_Event(self, Event):
         self.Event = Event
+
     def add_Event(self, value):
         self.Event.append(value)
+
     def insert_Event_at(self, index, value):
         self.Event.insert(index, value)
+
     def replace_Event_at(self, index, value):
         self.Event[index] = value
+
     def hasContent_(self):
         if (
-            self.Topic is not None or
-            self.Event
+                self.Topic is not None or
+                self.Event
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='TopicConfiguration', pretty_print=True):
+
+    def export(self, outfile, level, namespaceprefix_='',
+               namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='TopicConfiguration',
+               pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('TopicConfiguration')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8632,29 +10748,39 @@ class TopicConfiguration(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '',))
         already_processed = set()
         self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='TopicConfiguration')
         if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='TopicConfiguration', pretty_print=pretty_print)
+            outfile.write('>%s' % (eol_,))
+            self.exportChildren(outfile, level + 1, '', namespacedef_, name_='TopicConfiguration',
+                                pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
-            outfile.write('/>%s' % (eol_, ))
+            outfile.write('/>%s' % (eol_,))
+
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='TopicConfiguration'):
         pass
-    def exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='TopicConfiguration', fromsubclass_=False, pretty_print=True):
+
+    def exportChildren(self, outfile, level, namespaceprefix_='',
+                       namespacedef_='xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/"', name_='TopicConfiguration',
+                       fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Topic is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTopic>%s</%sTopic>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.Topic), input_name='Topic')), namespaceprefix_ , eol_))
+            outfile.write('<%sTopic>%s</%sTopic>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(self.Topic), input_name='Topic')),
+            namespaceprefix_, eol_))
         for Event_ in self.Event:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEvent>%s</%sEvent>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(Event_), input_name='Event')), namespaceprefix_ , eol_))
+            outfile.write('<%sEvent>%s</%sEvent>%s' % (
+            namespaceprefix_, self.gds_encode(self.gds_format_string(quote_xml(Event_), input_name='Event')),
+            namespaceprefix_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8662,8 +10788,10 @@ class TopicConfiguration(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Topic':
             value_ = child_.text
@@ -8675,12 +10803,13 @@ class TopicConfiguration(GeneratedsSuper):
             value_ = self.gds_parse_string(value_, node, 'Event')
             value_ = self.gds_validate_string(value_, node, 'Event')
             self.Event.append(value_)
+
+
 # end class TopicConfiguration
 
 
 GDSClassesMapping = {
 }
-
 
 USAGE_TEXT = """
 Usage: python <Parser>.py [ -s ] <in_xml_file>
@@ -8755,7 +10884,7 @@ def parseString(inString, silence=False):
     Returns -- The root object in the tree.
     '''
     parser = None
-    rootNode= parsexmlstring_(inString, parser)
+    rootNode = parsexmlstring_(inString, parser)
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
         rootTag = 'CreateBucket'
@@ -8801,7 +10930,7 @@ def main():
 
 
 if __name__ == '__main__':
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     main()
 
 RenameMappings_ = {
