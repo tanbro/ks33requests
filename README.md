@@ -1,6 +1,6 @@
 # ks33requests
 
-[![PyPI](https://img.shields.io/pypi/v/ks33requests.svg)](https://pypi.org/project/pyyaml-include/)
+[![PyPI](https://img.shields.io/pypi/v/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - License](https://img.shields.io/pypi/l/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Format](https://img.shields.io/pypi/format/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Status](https://img.shields.io/pypi/status/ks33requests.svg)](https://pypi.org/project/ks33requests/)
