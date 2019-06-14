@@ -1,10 +1,10 @@
 import io
-import sys
 from base64 import b64encode
 from datetime import datetime
 from email.utils import formatdate
 from functools import partial
 from hashlib import md5
+from sys import getdefaultencoding
 from time import mktime
 from typing import Union
 
@@ -20,7 +20,7 @@ def b64md5_bytes(data: Union[bytes, bytearray]) -> str:
     return b64encode(md5(data).digest()).decode()
 
 
-def b64md5_text(text: str, encoding: str = sys.getdefaultencoding()) -> str:
+def b64md5_text(text: str, encoding: str = getdefaultencoding()) -> str:
     data = text.encode(encoding=encoding)
     return b64md5_bytes(data)
 
