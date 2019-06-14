@@ -32,6 +32,9 @@ setup(
         'requests',
         'lxml',
     ],
+    tests_require=[
+        'python-dotenv',
+    ],
     classifiers=[
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Development Status :: 3 - Alpha',
