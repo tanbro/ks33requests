@@ -1,4 +1,5 @@
 import codecs
+import os
 import io
 import typing as t
 from base64 import b64encode
@@ -20,15 +21,15 @@ class Client:
 
     def __init__(
             self,
-            access_key: str,
-            secret_key: str,
+            access_key: str=None,
+            secret_key: str=None,
             endpoint: str = 'kss.ksyun.com',
             session: requests.Session = None,
             use_https: bool = True
     ):
         self._endpoint = endpoint.strip()
-        self._access_key = access_key.strip()
-        self._secret_key = secret_key.strip()
+        self._access_key = (access_key or '').strip() or os.environ.get('KSYUN_ACCESS_KEY', '')
+        self._secret_key = (secret_key or '').strip() or os.environ.get('KSYUN_SECRET_KEY', '')
         self._session = session
         self._use_https = bool(use_https)
 
