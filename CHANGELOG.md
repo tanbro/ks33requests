@@ -2,10 +2,15 @@
 
 ## 0.1.2
 
-Developing
+- Date: 2019-06-14
 
-- Changes:
+- Change:
   - 构造 `Client` 时，如果不指定密钥对，将从环境变量 `KSYUN_ACCESS_KEY` 与 `KSYUN_SECRET_KEY` 获得
+  - `Client.send()` 增加 `encoding` 参数，用于对文本数据上传的支持
+- Fix:
+  - 几个有关文本数据上传 bug
+- Add:
+  - 几个测试用例
 
 ## 0.1
 
