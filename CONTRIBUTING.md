@@ -6,7 +6,7 @@
 
 ## 复刻项目代码
 
-复刻项目代码到工作目录，然后切换到项目目录：
+复刻项目代码到工作目录，然后切换到项目的目录：
 
 ```bash
 cd path/to/your/workspace/directory/
@@ -16,11 +16,11 @@ cd ks33requests
 
 ## 准备开发环境
 
-强烈建议在 [virtual environment] 中进行开发工作。
+强烈建议在 [virtual environment][] 中进行开发工作。
 
 - 如果使用标准库:
 
-  使用标准库的 [venv][] 与 [pip][] 直接新建名为`venv`的虚拟环境目录，将本项目以“开发模式”安装到这个环境，并安装开发所需的包：
+  使用标准库的 [venv][] 与 [pip][] 直接新建名为`venv`的虚拟环境目录，将本项目以“开发模式”安装到这个环境，并安装开发工作所要使用的包：
 
   ```bash
   path/of/your/python -m venv venv
@@ -63,7 +63,11 @@ generateDS.py -f -o s3_api.py -s s3_sub.py --super=s3_api  schemas/AmazonS3.xsd
 
 ### 运行测试用例
 
-TODO ...
+```bash
+python setup.py test
+```
+
+测试用例很少，陆续补充中...
 
 [Python]: https://python.org/
 [virtual environment]: https://docs.python.org/3/glossary.html#term-virtual-environment
