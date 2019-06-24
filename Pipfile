@@ -12,8 +12,9 @@ generateds = "*"
 python-dotenv = "*"
 jupyter = "*"
 twine = "*"
+sphinx = "*"
 
 [packages]
 
 [requires]
-python_version = "3.6"
+

@@ -69,6 +69,15 @@ python setup.py test
 
 测试用例很少，陆续补充中...
 
+### Docs
+
+如果模块有增减，需要删除原来的 [Sphinx-Docs][] API 自动文档并重新生成:
+
+```bash
+rm -rf docs/ks3requests.rst docs/ks3requests.*.rst
+sphinx-apidoc -e -f -o docs/ src/ks33requests src/ks33requests/schemas/s3_*.py
+```
+
 [Python]: https://python.org/
 [virtual environment]: https://docs.python.org/3/glossary.html#term-virtual-environment
 [pip]: https://packaging.python.org/key_projects/#pip
@@ -76,6 +85,7 @@ python setup.py test
 [Pipenv]: https://packaging.python.org/key_projects/#pipenv
 [conda]: https://packaging.python.org/key_projects/#conda
 [S3]: https://aws.amazon.com/s3/
+[Sphinx-Docs]: https://www.sphinx-doc.org "Sphinx is a tool that makes it easy to create intelligent and beautiful documentation"
 [金山云]: https://www.ksyun.com/
 [KS3]: https://www.ksyun.com/post/product/KS3 "金山对象存储（Kingsoft Standard Storage Service，简称KS3）"
 [generateDS]: https://pypi.org/project/generateDS/
