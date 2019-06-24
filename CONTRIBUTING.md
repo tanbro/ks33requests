@@ -79,11 +79,11 @@ sphinx-apidoc -e -f -o docs/ src/ks33requests src/ks33requests/schemas/s3_*.py
 ```
 
 [Python]: https://python.org/
-[virtual environment]: https://docs.python.org/3/glossary.html#term-virtual-environment
-[pip]: https://packaging.python.org/key_projects/#pip
-[venv]: https://docs.python.org/3/library/venv.html
-[Pipenv]: https://packaging.python.org/key_projects/#pipenv
-[conda]: https://packaging.python.org/key_projects/#conda
+[virtual environment]: https://packaging.python.org/glossary/#term-virtual-environment "An isolated Python environment that allows packages to be installed for use by a particular application, rather than being installed system wide."
+[pip]: https://packaging.python.org/key_projects/#pip "A tool for installing Python packages."
+[Pipenv]: https://packaging.python.org/key_projects/#pipenv "Pipenv is a project that aims to bring the best of all packaging worlds to the Python world."
+[venv]: https://packaging.python.org/key_projects/#venv "A package in the Python Standard Library (starting with Python 3.3) for creating Virtual Environments."
+[conda]: https://packaging.python.org/key_projects/#conda "conda is the package management tool for Anaconda Python installations."
 [S3]: https://aws.amazon.com/s3/
 [Sphinx-Docs]: https://www.sphinx-doc.org "Sphinx is a tool that makes it easy to create intelligent and beautiful documentation"
 [金山云]: https://www.ksyun.com/

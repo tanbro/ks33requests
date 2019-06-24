@@ -1,11 +1,12 @@
-import codecs
 import io
-import os
-import sys
 from base64 import b64encode
+from codecs import encode
 from functools import partial
 from hashlib import md5
+from io import BytesIO, TextIOBase, BufferedIOBase, StringIO
+from os import environ
 from pathlib import Path
+from sys import getdefaultencoding
 from typing import Dict, List, Union, Generator, Optional, BinaryIO, TextIO
 
 import requests
@@ -46,8 +47,8 @@ class Client:
         :param bool use_https: 是否使用 `HTTPS`。默认启用。
         """
         self._endpoint = endpoint.strip()
-        self._access_key = (access_key or '').strip() or os.environ.get('KSYUN_ACCESS_KEY', '')
-        self._secret_key = (secret_key or '').strip() or os.environ.get('KSYUN_SECRET_KEY', '')
+        self._access_key = (access_key or '').strip() or environ.get('KSYUN_ACCESS_KEY', '')
+        self._secret_key = (secret_key or '').strip() or environ.get('KSYUN_SECRET_KEY', '')
         self._session = session
         self._use_https = bool(use_https)
 
@@ -60,10 +61,10 @@ class Client:
             data: Union[
                 bytes, bytearray, str, Generator, Path,
                 BinaryIO, TextIO,
-                io.BytesIO, io.StringIO,
-                io.BufferedIOBase, io.TextIOBase
+                BytesIO, StringIO,
+                BufferedIOBase, TextIOBase
             ] = None,
-            encoding=None,
+            encoding: str = None,
             content_md5: str = None,
             headers: Dict[str, str] = None,
             params: Dict[str, str] = None,
@@ -142,21 +143,21 @@ class Client:
             # 预处理 data 编码问题，顺便进行b64md5计算
             # text 转 bytes
             if isinstance(data, str):
-                data = data.encode(encoding=encoding or sys.getdefaultencoding())
+                data = encode(data, encoding=encoding or getdefaultencoding())
             # text io 转 bytes io
-            elif isinstance(data, io.TextIOBase):
+            elif isinstance(data, TextIOBase):
                 if not encoding:
                     try:
                         encoding = getattr(data, 'encoding')
                     except AttributeError:
                         pass
-                new_data = io.BytesIO()
+                new_data = BytesIO()
                 if content_md5 is None:
                     h = md5()
                 else:
                     h = None
                 for chunk in iter(partial(data.read, io.DEFAULT_BUFFER_SIZE), ''):
-                    chunk = codecs.encode(chunk, encoding=encoding or sys.getdefaultencoding())
+                    chunk = encode(chunk, encoding=encoding or getdefaultencoding())
                     new_data.write(chunk)
                     if content_md5 is None:
                         h.update(chunk)
@@ -167,7 +168,7 @@ class Client:
             if content_md5 is None:
                 if isinstance(data, (bytes, bytearray)):
                     content_md5 = b64md5_bytes(data)
-                elif isinstance(data, io.BufferedIOBase):
+                elif isinstance(data, BufferedIOBase):
                     h = md5()
                     for chunk in iter(partial(data.read, io.DEFAULT_BUFFER_SIZE), b''):
                         h.update(chunk)

@@ -15,17 +15,43 @@
 
 考虑到 [Python][]2 已经接近其生命周期的终点，我制作了这个简单的 [Python]3 [KS3][] 客户端用于相关项目。
 
+## 安装
+
+- [pip][] 安装
+
+  ```bash
+  pip install ks33requests
+  ```
+
+- 源代码安装
+
+  ```bash
+  python setuptools.py install
+  ```
+
+- [Pipenv][] 安装
+
+  ```bash
+  pipenv install ks33requests
+  ```
+
 ## 如何使用
 
 参见 [guide](notebooks/guide.ipynb)
 
 ## 说明文档
 
-- [INSTALL](INSTALL.md)
 - [CHANGELOG](CHANGELOG.md)
 - [CONTRIBUTING](CONTRIBUTING.md)
 - [AUTHORS](AUTHORS.md)
 
 [Python]: https://python.org/
+[virtual environment]: https://packaging.python.org/glossary/#term-virtual-environment "An isolated Python environment that allows packages to be installed for use by a particular application, rather than being installed system wide."
+[pip]: https://packaging.python.org/key_projects/#pip "A tool for installing Python packages."
+[Pipenv]: https://packaging.python.org/key_projects/#pipenv "Pipenv is a project that aims to bring the best of all packaging worlds to the Python world."
+[venv]: https://packaging.python.org/key_projects/#venv "A package in the Python Standard Library (starting with Python 3.3) for creating Virtual Environments."
+[conda]: https://packaging.python.org/key_projects/#conda "conda is the package management tool for Anaconda Python installations."
+[S3]: https://aws.amazon.com/s3/
 [金山云]: https://www.ksyun.com/
 [KS3]: https://www.ksyun.com/post/product/KS3 "金山对象存储（Kingsoft Standard Storage Service，简称KS3）"
+[generateDS]: https://pypi.org/project/generateDS/
