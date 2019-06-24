@@ -16,6 +16,9 @@ from .schemas import s3_sub
 from .utils import b64md5_bytes
 
 
+__all__ = ['get_s3obj', 'Client']
+
+
 def get_s3obj(resp: requests.Response):
     return s3_sub.parseString(resp.content, True) if resp.content else None
 

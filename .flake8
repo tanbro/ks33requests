@@ -2,6 +2,7 @@
 exclude =
     .git/,
     .venv/,
+    .eggs/,
     __pycache__,
     docs/,
     data/,
@@ -9,6 +10,7 @@ exclude =
     build/,
     dist/,
     .vscode/,
-    .idea/
+    .idea/,
+    src/ks33requests/schemas/s3_*.py
 max-line-length = 120
 max-complexity = 10

@@ -1,6 +1,10 @@
 import requests
 from lxml import etree
 
+
+__all__ = ['Ks3Error', 'raise_for_ks3_status']
+
+
 SUPPORTED_ERROR_HTTP_STATUES = [400, 403, 404, 405, 408, 409, 413, 416, 418, 500, 501]
 
 
