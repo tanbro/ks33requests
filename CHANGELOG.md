@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## 0.1.2
+## 0.1.2.1
 
-- Date: 2019-06-14
+- Date: 2019-06-25
 
 - Change:
   - 构造 `Client` 时，如果不指定密钥对，将从环境变量 `KSYUN_ACCESS_KEY` 与 `KSYUN_SECRET_KEY` 获得
@@ -11,6 +11,9 @@
   - 几个有关文本数据上传 bug
 - Add:
   - 几个测试用例
+  - [Sphinx Docs](https://ks33requests.readthedocs.io)
+  - [Circle CI](https://circleci.com/gh/tanbro/ks33requests)
+  - [Code coverage](https://codecov.io/gh/tanbro/ks33requests)
 
 ## 0.1
 
