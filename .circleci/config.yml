@@ -11,7 +11,7 @@ references:
       - checkout
       - run:
           name: Setup develop requires
-          sudo pip install -r requires/dev.txt
+          command: sudo pip install -r requires/dev.txt
       - run:
           name: Run coverage tests
           command: |
