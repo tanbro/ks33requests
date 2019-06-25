@@ -16,7 +16,7 @@ references:
           name: Run coverage tests
           command: |
             # run unit test cases with coverage
-            coverage run --source=src setup.py test
+            coverage run setup.py test
             # generate an XML report of coverage results
             coverage xml
             # upload test report to Code Climate using `after-build`

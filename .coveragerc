@@ -1,0 +1,14 @@
+# .coveragerc to control coverage.py
+[run]
+omit =
+    setup.py
+    src/ks33requests/_scm_version.py
+    src/ks33requests/schemas/s3_*.py
+
+[paths]
+source =
+    src/
+
+[report]
+include =
+    src/*
