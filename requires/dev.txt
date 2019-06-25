@@ -6,3 +6,4 @@ sphinx>=2.0
 recommonmark>=0.5.0
 nbsphinx
 coverage
+codecov

@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![Documentation Status](https://readthedocs.org/projects/ks33requests/badge/?version=stable)](https://ks33requests.readthedocs.io/zh_CN/stable/?badge=stable)
 [![PyPI - License](https://img.shields.io/pypi/l/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+[![codecov](https://codecov.io/gh/tanbro/ks33requests/branch/master/graph/badge.svg)](https://codecov.io/gh/tanbro/ks33requests)
 [![PyPI - Format](https://img.shields.io/pypi/format/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Status](https://img.shields.io/pypi/status/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ks33requests.svg)](https://pypi.org/project/ks33requests/)

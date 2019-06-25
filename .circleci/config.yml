@@ -10,15 +10,10 @@ references:
     steps:
       - checkout
       - run:
-          name: Setup dependencies of test
-          command: sudo pip install coverage
+          name: Setup develop requires
+          sudo pip install -r requires/dev.txt
       - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            # download test reporter as a static binary
-            sudo pip install codecov
-      - run:
-          name: Run tests
+          name: Run coverage tests
           command: |
             # run unit test cases with coverage
             coverage run --source=src setup.py test
