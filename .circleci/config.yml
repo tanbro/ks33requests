@@ -16,19 +16,16 @@ references:
           name: Setup Code Climate test-reporter
           command: |
             # download test reporter as a static binary
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
+            sudo pip install codecov
       - run:
           name: Run tests
           command: |
-            # notify Code Climate of a pending test report using `before-build`
-            ./cc-test-reporter before-build
             # run unit test cases with coverage
             coverage run --source=src setup.py test
             # generate an XML report of coverage results
             coverage xml
             # upload test report to Code Climate using `after-build`
-            ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+            codecov -f coverage.xml
 
   deploy_steps: &deploy_steps
     steps:
