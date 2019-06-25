@@ -10,7 +10,7 @@ references:
     steps:
       - checkout
       - run:
-          name: Setup develop requires
+          name: Install develop requires
           command: sudo pip install -r requires/dev.txt
       - run:
           name: Run coverage tests
