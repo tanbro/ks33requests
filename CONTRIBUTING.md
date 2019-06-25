@@ -74,8 +74,8 @@ python setup.py test
 如果模块有增减，需要删除原来的 [Sphinx-Docs][] API 自动文档并重新生成:
 
 ```bash
-rm -rf docs/ks3requests.rst docs/ks3requests.*.rst
-sphinx-apidoc -e -f -o docs/ src/ks33requests src/ks33requests/schemas/s3_*.py
+rm -rf docs/ks3requests.rst docs/api
+sphinx-apidoc -e -f -o docs/api src/ks33requests src/ks33requests/schemas/s3_*.py
 ```
 
 [Python]: https://python.org/

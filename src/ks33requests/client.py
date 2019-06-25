@@ -20,6 +20,15 @@ __all__ = ['get_s3obj', 'Client']
 
 
 def get_s3obj(resp: requests.Response):
+    """读取 KS3 返回的 HTTP 响应正文，并转换为 `Amazon S3 <https://aws.amazon.com/s3/>`_ 结构的对象
+
+    :param requests.Response resp: 由 :meth:`Client.send` 返回的 HTTP 响应对象
+    :return: S3 对象
+
+    .. seealso:: 返回对象的结构定义来自 http://s3.amazonaws.com/doc/2006-03-01/AmazonS3.xsd
+
+    .. note:: 如果返回的 HTTP 响应没有正文，该函数返回值为 ``None``
+    """
     return s3_sub.parseString(resp.content, True) if resp.content else None
 
 
@@ -136,6 +145,9 @@ class Client:
                 - :meth:`requests.Response.json`
 
         :rtype: requests.Response
+
+        :raises Ks3Error: 返回了 KS3 文档定义的错误 HTTP 状态编码
+        :raises requests.RequestException: 其它 HTTP 错误
         """
         # http verb
         method = method.strip().lower()

@@ -5,16 +5,16 @@ verify_ssl = true
 
 [dev-packages]
 ks33requests = {editable = true,path = "."}
-setuptools-scm = "*"
-setuptools-scm-git-archive = "*"
+flake8 = "*"
 yapf = "*"
-generateds = "*"
+generateds = ">=2.32"
 python-dotenv = "*"
 jupyter = "*"
 twine = "*"
-sphinx = "*"
+sphinx = ">=2.0"
+recommonmark = ">=0.5.0"
+nbsphinx = "*"
 
 [packages]
 
 [requires]
-

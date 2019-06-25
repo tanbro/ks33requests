@@ -37,13 +37,7 @@
 
 ## 如何使用
 
-参见 [guide](notebooks/guide.ipynb)
-
-## 说明文档
-
-- [CHANGELOG](CHANGELOG.md)
-- [CONTRIBUTING](CONTRIBUTING.md)
-- [AUTHORS](AUTHORS.md)
+参见 [notebooks](notebooks) 中的笔记
 
 [Python]: https://python.org/
 [virtual environment]: https://packaging.python.org/glossary/#term-virtual-environment "An isolated Python environment that allows packages to be installed for use by a particular application, rather than being installed system wide."

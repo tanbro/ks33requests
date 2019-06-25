@@ -1,5 +1,6 @@
-generateDS
+generateDS>=2.32
 python-dotenv
 jupyter
 twine
-sphinx
+sphinx>=2.0
+recommonmark>=0.5.0

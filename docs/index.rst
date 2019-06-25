@@ -3,21 +3,49 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-ks33requests API Reference
-==========================
+ks33requests Documentations
+###########################
 
-Content
--------
+
+:Release: |release|
+:Date:    |today|
+:Version: |version|
+
+------
+
+Docs
+----
 
 .. toctree::
+   :glob:
+   :maxdepth: 1
+
+   README <README>
+   CHANGELOG
+   CONTRIBUTING
+   AUTHORS
+
+Examples
+--------
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   notebooks/*
+
+API
+---
+
+.. toctree::
+   :glob:
    :maxdepth: 4
 
-   modules
-
+   api/modules
 
 
 Indices and tables
-------------------
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`

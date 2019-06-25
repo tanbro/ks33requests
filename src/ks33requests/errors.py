@@ -9,6 +9,9 @@ SUPPORTED_ERROR_HTTP_STATUES = [400, 403, 404, 405, 408, 409, 413, 416, 418, 500
 
 
 class Ks3Error(Exception):
+    """KS3 返回的 HTTP 响应带有 HTTP 错误状态码
+    """
+
     def __init__(self, status: int, code: str, message: str, resource: str, request_id: str):
         self._status = status
         self._code = code
@@ -32,26 +35,55 @@ class Ks3Error(Exception):
 
     @property
     def status(self):
+        """HTTP 状态码
+
+        :rtype: int
+        """
         return self._status
 
     @property
     def code(self):
+        """错误编码
+
+        :rtype: int
+        """
         return self._code
 
     @property
     def message(self):
+        """错误信息
+
+        :rtype: str
+        """
         return self._message
 
     @property
     def resource(self):
+        """引起错误的资源
+
+        :rtype: str
+        """
         return self._resource
 
     @property
     def request_id(self):
+        """引起错误的资源 ID
+
+        :rtype: str
+        """
         return self._request_id
 
 
 def raise_for_ks3_status(resp: requests.Response):
+    """检查 KS3 返回的 HTTP 响应，如果状态码可以识别为错误信息，则抛出异常
+
+    :param requests.Response resp: 要检查的 HTTP 响应对象
+    :raises Ks3Error: 如果检查到了 KS3 定义的 HTTP 错误状态码
+
+    .. warning::
+        这个函数仅检查可几个按照 KS3 文档定义的 HTTP 错误状态码，并 **不检查其它错误** 状态编码 。
+        可调用 :meth:`requests.Response.raise_for_status` 检查其它 HTTP 错误状态码。
+    """
     status = resp.status_code
     if status in SUPPORTED_ERROR_HTTP_STATUES:
         if resp.content:
