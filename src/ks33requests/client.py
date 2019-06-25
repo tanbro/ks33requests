@@ -117,7 +117,7 @@ class Client:
 
         :param Union[bytes,bytearray,str,Generator,Path,BinaryIO,TextIO] data: 上传内容
 
-            如要上传的文件，要设置的 ACL 规则等。
+            如: 要写入的文件，要设置的 ACL 规则，等等……
 
             .. note:: 仅在 ``method`` 参数 为 ``"PUT"`` 和 ``"POST"`` 时有效。
 
