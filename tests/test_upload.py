@@ -56,10 +56,10 @@ class SmallTextFileUploadTestCase(unittest.TestCase):
             data = io.BytesIO(fp.read())
         self.upload(data=data)
 
-    def test_wrong_checksum(self):
+    def test_invalid_checksum(self):
         with open(self.KEY, encoding=self.ENCODING) as fp:
             with self.assertRaises(Ks3Error) as context:
-                self.upload(data=fp, content_md5='fake')
+                self.upload(data=fp, content_md5='invalid_checksum')
         self.assertEqual('The Content-MD5 you specified is not valid.', context.exception.message)
 
 

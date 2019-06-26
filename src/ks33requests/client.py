@@ -1,20 +1,13 @@
-import io
-from base64 import b64encode
-from codecs import encode
-from functools import partial
-from hashlib import md5
-from io import BytesIO, TextIOBase, BufferedIOBase, StringIO
 from os import environ
 from pathlib import Path
-from sys import getdefaultencoding
-from typing import Dict, List, Union, Generator, Optional, BinaryIO, TextIO
+from typing import Dict, List, Union, Optional
 
 import requests
 
 from .auth import make_canonical_resource_string, generate_auth_headers
 from .errors import raise_for_ks3_status
 from .schemas import s3_sub
-from .utils import b64md5_bytes
+from .utils import prepare_data
 
 __all__ = ['get_s3obj', 'Client']
 
@@ -56,8 +49,8 @@ class Client:
         :param bool use_https: 是否使用 `HTTPS`。默认启用。
         """
         self._endpoint = endpoint.strip()
-        self._access_key = (access_key or '').strip() or environ.get('KSYUN_ACCESS_KEY', '')
-        self._secret_key = (secret_key or '').strip() or environ.get('KSYUN_SECRET_KEY', '')
+        self._access_key = (access_key or '').strip() or environ.get('KSYUN_ACCESS_KEY', '').strip()
+        self._secret_key = (secret_key or '').strip() or environ.get('KSYUN_SECRET_KEY', '').strip()
         self._session = session
         self._use_https = bool(use_https)
 
@@ -67,12 +60,7 @@ class Client:
             bucket_name: str = None,
             object_key: str = None,
             sub_resources: Union[str, List[str]] = None,
-            data: Union[
-                bytes, bytearray, str, Generator, Path,
-                BinaryIO, TextIO,
-                BytesIO, StringIO,
-                BufferedIOBase, TextIOBase
-            ] = None,
+            data=None,
             encoding: str = None,
             content_md5: str = None,
             headers: Dict[str, str] = None,
@@ -105,7 +93,7 @@ class Client:
             其中，key是Object的名字；data是Object 的数据。
             key为UTF-8编码，且编码后的长度不得超过1024个字节。
 
-        :param Union[str,List[str]] sub_resources: 用户请求的子资源
+        :param sub_resources: 用户请求的子资源
 
             把URL参数中的::
 
@@ -113,26 +101,35 @@ class Client:
 
             筛选出来，将这些查询字符串及其请求值(不做URL编码的请求值)按照字典序，从小到大排列，以&为分隔符排列，即可得到SubResource。
 
-            使用时，可以直接传入计算好了的 `SubResource` 字符串，也可以传入子资源的字符串列表。
+            使用时，可以传入:
 
-        :param Union[bytes,bytearray,str,Generator,Path,BinaryIO,TextIO] data: 上传内容
+            - 单个子资源字符串
+            - 子资源字符串的列表
+            - 计算好了的 `SubResource` 字符串
+
+        :type sub_resources: Union[str, List[str]]
+
+        :param data: 上传内容。可以使 :mod:`requests` 的 `POST` 或 `PUT` 支持的任何类型
 
             如: 要写入的文件，要设置的 ACL 规则，等等……
 
             .. note:: 仅在 ``method`` 参数 为 ``"PUT"`` 和 ``"POST"`` 时有效。
 
-        :param str encoding: 上传内容编码。默认使用操作系统设置。
+        :param str encoding: 上传内容编码，对字符类型有效。默认自动获取。
 
-            .. note:: 如果 `data` 是字符串，则该参数必须指定。
+        :param str content_md5: 用户自行计算的上传内容的 MD5 散列值对应的 BASE64 字符串。默认自动计算。
 
-        :param str content_md5: 上传内容的 MD5 散列值对应的 BASE64 字符串。默认自动计算。
+            .. note:: 默认值为 ``None`` ，将自动计算。但是，如果传入空字符串 (``""``) ，将以空字符串覆盖校验值(不校验)。
 
-            .. note:: 默认值为 ``None`` ，将自动计算。但是，如果传入空字符串 (``""``) ，将以空字符串覆盖校验值。
+        :param headers: 自定义 HTTP 头域键值对
+        :type headers: Dict[str, str]
 
-        :param Dict[str,str] headers: 自定义 HTTP 头
-        :param Dict[str,str] params: 自定义 URL 参数
+        :param params: 自定义 URL 参数键值对
+        :type params: Dict[str, str]
+
         :param bool check_status: 是否在收到 HTTP 回复的第一行时检查状态码
         :param requests.Session session: 使用指定的会话发送 API 请求。默认自动分配。
+
         :param kwargs: 其它传给 :mod:`requests` 的参数
 
         :return: HTTP 响应对象
@@ -153,50 +150,10 @@ class Client:
         method = method.strip().lower()
         if method in ('post', 'put'):
             # 预处理 data 编码问题，顺便进行b64md5计算
-            # text 转 bytes
-            if isinstance(data, str):
-                data = encode(data, encoding=encoding or getdefaultencoding())
-            # text io 转 bytes io
-            elif isinstance(data, TextIOBase):
-                if not encoding:
-                    try:
-                        encoding = getattr(data, 'encoding')
-                    except AttributeError:
-                        pass
-                new_data = BytesIO()
-                if content_md5 is None:
-                    h = md5()
-                else:
-                    h = None
-                for chunk in iter(partial(data.read, io.DEFAULT_BUFFER_SIZE), ''):
-                    chunk = encode(chunk, encoding=encoding or getdefaultencoding())
-                    new_data.write(chunk)
-                    if content_md5 is None:
-                        h.update(chunk)
-                if content_md5 is None:
-                    content_md5 = b64encode(h.digest()).decode()
-                new_data.seek(0)
-                data = new_data
-            if content_md5 is None:
-                if isinstance(data, (bytes, bytearray)):
-                    content_md5 = b64md5_bytes(data)
-                elif isinstance(data, BufferedIOBase):
-                    h = md5()
-                    for chunk in iter(partial(data.read, io.DEFAULT_BUFFER_SIZE), b''):
-                        h.update(chunk)
-                    content_md5 = b64encode(h.digest()).decode()
-                    data.seek(0)
-                elif isinstance(data, Path):
-                    with data.open('rb') as fp:
-                        h = md5()
-                        for chunk in iter(partial(fp.read, io.DEFAULT_BUFFER_SIZE), b''):
-                            h.update(chunk)
-                        content_md5 = b64encode(h.digest()).decode()
-                else:
-                    content_md5 = ''
+            data, calculated_md5 = prepare_data(data, checking=content_md5 is None, encoding=encoding)
+            content_md5 = calculated_md5 if calculated_md5 is not None else content_md5
         else:
-            data = None
-            content_md5 = ''
+            data, content_md5 = None, ''
         # Signature
         canonical_resource = make_canonical_resource_string(bucket_name, object_key, sub_resources)
         auth_headers = generate_auth_headers(
