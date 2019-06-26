@@ -6,14 +6,14 @@
 version: 2
 
 references:
-  tests_steps: &tests_steps
+  test_steps: &test_steps
     steps:
       - checkout
       - run:
-          name: Install develop requires
+          name: Install develop requirements
           command: sudo pip install -r requires/dev.txt
       - run:
-          name: Run coverage tests
+          name: Run test with coverage
           command: |
             # run unit test cases with coverage
             coverage run setup.py test
@@ -22,7 +22,7 @@ references:
             # upload test report to Code Climate using `after-build`
             codecov -f coverage.xml
 
-  deploy_steps: &deploy_steps
+  publish_steps: &publish_steps
     steps:
       - checkout
       - run:
@@ -35,26 +35,26 @@ references:
             twine upload -u ${PYPI_USER} -p ${PYPI_PASSWORD} dist/*
 
 jobs:
-  test-python3:
+  test:
     docker:
       - image: circleci/python:3
-    <<: *tests_steps
+    <<: *test_steps
 
-  deploy:
+  publish:
     docker:
-      - image: circleci/python
-    <<: *deploy_steps
+      - image: circleci/python:3
+    <<: *publish_steps
 
 workflows:
   version: 2
-  test-and-deploy: # name of your workflow
+  test_publish_workflow:
     jobs:
-      - test-python3
-      - deploy:
+      - test
+      - publish:
           requires:
-            - test-python3
+            - test
           filters:
             tags:
-              only: /^\d+(\.\d+)*(\.?(a|b|rc|post)\d+(\.\d+)*)?/
+              only: /^[0-9]+(\.[0-9]+)*(\.?(a|b|rc|post)[0-9]+(\.[0-9]+)*)?/
             branches:
               ignore: /.*/
