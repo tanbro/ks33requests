@@ -11,11 +11,11 @@ generateds = ">=2.32"
 python-dotenv = "*"
 jupyter = "*"
 twine = "*"
+coverage = "*"
+codecov = "*"
 sphinx = ">=2.0"
 recommonmark = ">=0.5.0"
 nbsphinx = "*"
-coverage = "*"
-codecov = "*"
 
 [packages]
 

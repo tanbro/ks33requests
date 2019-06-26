@@ -1,8 +1,17 @@
 name: ks33requests-dev
+channels:
+  - conda-forge
 dependencies:
-  - python>=3.5
   - requests
   - lxml
   - jupyter
   - python-dotenv
   - twine
+  - coverage
+  - codecov
+  - sphinx
+  - recommonmark
+  - pandoc
+  - nbsphinx
+  - pip:
+      - generateDS
