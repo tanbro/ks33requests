@@ -29,7 +29,7 @@ def http_format_date(dt: datetime = None) -> str:
     return formatdate(timeval=stamp, localtime=False, usegmt=True)
 
 
-def prepare_data(
+def prepare_data(  # noqa: C901
         data: Union[bytes, bytearray, str, pathlib.Path, io.BufferedIOBase, io.TextIOBase],
         checking: bool = True,
         encoding: str = None
@@ -54,17 +54,18 @@ def prepare_data(
 
     .. seealso:: https://docs.ksyun.com/documents/2321
     """
-    result_data = data
-    hash_val = None
+    result_data, hash_val = None, None
     default_encoding = getdefaultencoding()
 
     # 字节数据 - 直接计算
     if isinstance(data, (bytes, bytearray)):
+        result_data = data
         if checking:
             hash_val = b64encode(md5(data).digest()).decode()
 
     # 文件路径
     elif isinstance(data, pathlib.Path):
+        result_data = data
         if checking:
             with data.open('rb') as fp:
                 h = md5()
@@ -74,6 +75,7 @@ def prepare_data(
 
     # 字节流
     elif isinstance(data, io.BufferedIOBase):
+        result_data = data
         if checking:
             h = md5()
             p = data.tell()
