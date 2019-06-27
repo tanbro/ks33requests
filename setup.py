@@ -16,4 +16,8 @@ setup(
         'version_scheme': 'guess-next-dev',
         'write_to': 'src/ks33requests/_scm_version.py',
     },
+    install_requires=[
+        'requests<3.0,>=2.0',
+        'lxml<5.0,>=4.0'
+    ]
 )
