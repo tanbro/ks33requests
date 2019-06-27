@@ -25,8 +25,8 @@ Docs
    CONTRIBUTING
    AUTHORS
 
-Examples
---------
+Notebooks
+---------
 
 .. toctree::
    :glob:

@@ -1,11 +1,9 @@
 import requests
-from lxml import etree
+from lxml import etree  # nosec
 
 __all__ = ['Ks3Error', 'raise_for_ks3_status']
 
 SUPPORTED_ERROR_HTTP_STATUES = [400, 403, 404, 405, 408, 409, 413, 416, 418, 500, 501]
-
-_KS3_ERROR_KEYS = ('code', 'message', 'resource', 'request_id')
 
 
 class Ks3Error(Exception):
@@ -82,8 +80,9 @@ def raise_for_ks3_status(resp: requests.Response):
     status = resp.status_code
     if status in SUPPORTED_ERROR_HTTP_STATUES:
         if resp.content:
-            root = etree.fromstring(resp.content)
-            assert root.tag == 'Error'
+            root = etree.fromstring(resp.content)  # nosec
+            if root.tag != 'Error':
+                raise ValueError('Expect tag of root xml node is "Error", actual is %r', root.tag)
             kv_args = {child.tag.strip().lower(): child.text.strip() for child in root}
             kv_args['status'] = status
             raise Ks3Error(**kv_args)

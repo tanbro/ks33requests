@@ -2,7 +2,7 @@
 [run]
 omit =
     setup.py
-    src/ks33requests/_scm_version.py
+    **/_scm_version.py
     src/ks33requests/schemas/s3_*.py
 
 [paths]

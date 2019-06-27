@@ -65,14 +65,14 @@ def prepare_data(data, checking: bool = True, encoding: str = None) -> Tuple[Any
     if isinstance(data, (bytes, bytearray)):
         result_data = data
         if checking:
-            hash_val = b64encode(md5(data).digest()).decode()
+            hash_val = b64encode(md5(data).digest()).decode()  # nosec
 
     # 文件路径
     elif isinstance(data, pathlib.Path):
         result_data = data  # noqa: T484
         if checking:
             with data.open('rb') as fp:
-                h = md5()
+                h = md5()  # nosec
                 for chunk in iter(partial(fp.read, io.DEFAULT_BUFFER_SIZE), b''):
                     h.update(chunk)
                 hash_val = b64encode(h.digest()).decode()
@@ -94,7 +94,7 @@ def prepare_data(data, checking: bool = True, encoding: str = None) -> Tuple[Any
     elif isinstance(data, str):
         result_data = encode(data, encoding=encoding or default_encoding)
         if checking:
-            hash_val = b64encode(md5(result_data).digest()).decode()
+            hash_val = b64encode(md5(result_data).digest()).decode()  # nosec
 
     # 文本流
     elif isinstance(data, io.TextIOBase):
@@ -104,7 +104,7 @@ def prepare_data(data, checking: bool = True, encoding: str = None) -> Tuple[Any
             except AttributeError:
                 pass
         if checking:
-            h = md5()
+            h = md5()  # nosec
         stream = io.BytesIO()
         for s in iter(partial(data.read, io.DEFAULT_BUFFER_SIZE), ''):
             chunk = encode(s, encoding=encoding or default_encoding)

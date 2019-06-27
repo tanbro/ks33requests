@@ -212,7 +212,7 @@ class Client:
             raise_for_ks3_status(resp)
             resp.raise_for_status()
         # return
-        setattr(resp, 's3obj', lambda: get_s3obj(resp))
+        resp.s3obj = lambda: get_s3obj(resp)  # noqa: T484
         return resp
 
     @property
