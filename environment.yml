@@ -6,12 +6,15 @@ dependencies:
   - lxml
   - jupyter
   - python-dotenv
-  - twine
+  - flake8
+  - mypy
   - coverage
   - codecov
+  - twine
   - sphinx
   - recommonmark
   - pandoc
   - nbsphinx
   - pip:
       - generateDS
+      - flake8-mypy

@@ -2,7 +2,6 @@ import io
 import os
 import pathlib
 import unittest
-from functools import partial
 
 from dotenv import load_dotenv
 
@@ -22,7 +21,9 @@ class SmallTextFileUploadTestCase(unittest.TestCase):
 
     def setUp(self):
         self.client = Client(endpoint=KS3_ENDPOINT)
-        self.upload = partial(self.client.send, method='put', bucket_name=KS3_BUCKET, object_key=self.KEY)
+
+    def upload(self, *args, **kwargs):
+        return self.client.send(method='put', bucket_name=KS3_BUCKET, object_key=self.KEY, *args, **kwargs)
 
     def test_open(self):
         with open(self.KEY, encoding=self.ENCODING) as fp:

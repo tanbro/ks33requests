@@ -5,8 +5,9 @@ verify_ssl = true
 
 [dev-packages]
 ks33requests = {editable = true,path = "."}
-flake8 = "*"
 yapf = "*"
+flake8 = "*"
+flake8-mypy = "*"
 generateds = ">=2.32"
 python-dotenv = "*"
 jupyter = "*"

@@ -1,7 +1,5 @@
 # ks33requests
 
----
-
 [![PyPI](https://img.shields.io/pypi/v/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - License](https://img.shields.io/pypi/l/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ks33requests.svg)](https://pypi.org/project/ks33requests/)
@@ -10,8 +8,6 @@
 [![codecov](https://codecov.io/gh/tanbro/ks33requests/branch/master/graph/badge.svg)](https://codecov.io/gh/tanbro/ks33requests)
 [![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/tanbro/ks33requests.svg)](https://libraries.io/github/tanbro/ks33requests)
 [![Documentation Status](https://readthedocs.org/projects/ks33requests/badge/?version=stable)](https://ks33requests.readthedocs.io/zh_CN/stable/?badge=stable)
-
----
 
 ## 概述
 
@@ -51,9 +47,9 @@
 
 以及代码仓库中的:
 
-- [CHANGELOG](CHANGELOG)
-- [CONTRIBUTING](CONTRIBUTING)
-- [AUTHORS](AUTHORS)
+- [CHANGELOG](CHANGELOG.md)
+- [CONTRIBUTING](CONTRIBUTING.md)
+- [AUTHORS](AUTHORS.md)
 
 [Python]: https://python.org/
 [金山云]: https://www.ksyun.com/

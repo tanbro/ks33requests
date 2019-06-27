@@ -1,10 +1,10 @@
+import pathlib
 from os import environ
-from pathlib import Path
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Optional, Union
 
 import requests
 
-from .auth import make_canonical_resource_string, generate_auth_headers
+from .auth import generate_auth_headers, make_canonical_resource_string
 from .errors import raise_for_ks3_status
 from .schemas import s3_sub
 from .utils import prepare_data
@@ -34,12 +34,12 @@ class Client:
     """
 
     def __init__(
-            self,
-            access_key: str = None,
-            secret_key: str = None,
-            endpoint: str = 'kss.ksyun.com',
-            session: requests.Session = None,
-            use_https: bool = True
+        self,
+        access_key: str = None,
+        secret_key: str = None,
+        endpoint: str = 'kss.ksyun.com',
+        session: requests.Session = None,
+        use_https: bool = True
     ):
         """
         :param str access_key: `KS3` 颁发给您的 `AccessKey` （长度为20个字符的ASCII字符串）。用于标识客户的身份。
@@ -55,19 +55,19 @@ class Client:
         self._use_https = bool(use_https)
 
     def send(
-            self,
-            method: str = 'get',
-            bucket_name: str = None,
-            object_key: str = None,
-            sub_resources: Union[str, List[str]] = None,
-            data=None,
-            encoding: str = None,
-            content_md5: str = None,
-            headers: Dict[str, str] = None,
-            params: Dict[str, str] = None,
-            check_status: bool = True,
-            session: requests.Session = None,
-            **kwargs
+        self,
+        method: str = 'get',
+        bucket_name: str = None,
+        object_key: str = None,
+        sub_resources: Union[str, List[str]] = None,
+        data=None,
+        encoding: str = None,
+        content_md5: str = None,
+        headers: Dict[str, str] = None,
+        params: Dict[str, str] = None,
+        check_status: bool = True,
+        session: requests.Session = None,
+        **kwargs
     ) -> requests.Response:
         """向 KS3 发送一个 HTTP API 请求，并返回对应的 HTTP 响应对象
 
@@ -97,9 +97,16 @@ class Client:
 
             把URL参数中的::
 
-                "acl","lifecycle","location","logging","notification","partNumber","policy","requestPayment","torrent","uploadId","uploads","versionId","versioning","versions","website","delete","thumbnail","cors","queryadp","adp","asyntask","querytask","domain","response-content-type","response-content-language","response-expires","response-cache-control","response-content-disposition","response-content-encoding"
+                "acl","lifecycle","location","logging","notification",
+                "partNumber","policy","requestPayment","torrent","uploadId",
+                "uploads","versionId","versioning","versions","website",
+                "delete","thumbnail","cors","queryadp","adp",
+                "asyntask","querytask","domain","response-content-type",
+                "response-content-language","response-expires",
+                "response-cache-control","response-content-disposition",
+                "response-content-encoding"
 
-            筛选出来，将这些查询字符串及其请求值(不做URL编码的请求值)按照字典序，从小到大排列，以&为分隔符排列，即可得到SubResource。
+            筛选出来，将这些查询字符串及其请求值(不做URL编码的请求值)按照字典序，从小到大排列，以 `&` 为分隔符排列，即可得到 `SubResource` 。
 
             使用时，可以传入:
 
@@ -109,9 +116,22 @@ class Client:
 
         :type sub_resources: Union[str, List[str]]
 
-        :param data: 上传内容。可以使 :mod:`requests` 的 `POST` 或 `PUT` 支持的任何类型
+        :param data: 上传内容。
 
-            如: 要写入的文件，要设置的 ACL 规则，等等……
+            - 当 `data` 的类型是:
+
+              - :class:`bytes`
+              - :class:`bytearray`
+              - :class:`str` (可能需要指定 `encoding` 参数)
+              - :class:`pathlib.Path`
+              - :class:`io.BufferedIOBase` (如 ``open(file, mode="rb")`` 的返回值)
+              - :class:`io.TextIOBase` (如 ``open(file, mode="r")`` 的返回值，可能需要指定 `encoding` 参数)
+
+              时，如果 `content_md5` 为 ``None`` 或者 ``""`` ，该函数会自动计算校验值
+
+            - 当 `data` 是返回 :class:`bytes` 的可迭代对象时，该函数不会自动计算校验值，如需校验，应传入有效的 `content_md5` 参数
+
+            `data` 的内容一般是要写入的文件，要设置的 ACL 规则，等等……
 
             .. note:: 仅在 ``method`` 参数 为 ``"PUT"`` 和 ``"POST"`` 时有效。
 
@@ -148,42 +168,45 @@ class Client:
         """
         # http verb
         method = method.strip().lower()
+        # http headers
+        headers = headers or {}
+        # http content, Content-MD5
         if method in ('post', 'put'):
             # 预处理 data 编码问题，顺便进行b64md5计算
             data, calculated_md5 = prepare_data(data, checking=content_md5 is None, encoding=encoding)
-            content_md5 = calculated_md5 if calculated_md5 is not None else content_md5
+            content_md5 = (calculated_md5 if calculated_md5 else content_md5) or ''
+            if content_md5:
+                headers['Content-MD5'] = content_md5
         else:
             data, content_md5 = None, ''
         # Signature
         canonical_resource = make_canonical_resource_string(bucket_name, object_key, sub_resources)
-        auth_headers = generate_auth_headers(
-            http_verb=method,
-            access_key=self._access_key,
-            secret_key=self._secret_key,
-            canonical_resource=canonical_resource,
-            content_md5=content_md5
+        # url
+        url = '{}://{}{}'.format('https' if self.use_https else 'http', self.endpoint, canonical_resource)
+        # update headers
+        headers.update(
+            generate_auth_headers(
+                http_verb=method,
+                access_key=self._access_key,
+                secret_key=self._secret_key,
+                canonical_resource=canonical_resource,
+                content_md5=content_md5
+            )
         )
         # requests Session
         if not session:
-            session = self._session
+            session = self.session
         if session:
-            request = session.request
+            req = session.request
         else:
-            request = requests.request
-        # url
-        url = '{}://{}{}'.format('https' if self._use_https else 'http', self._endpoint, canonical_resource)
-        # headers
-        headers = headers or {}
-        headers.update(auth_headers)
-        if content_md5:
-            headers['Content-MD5'] = content_md5
+            req = requests.request  # noqa: T484
         # send http request
         # 文件路径的，要特殊处理！
-        if isinstance(data, Path):
+        if isinstance(data, pathlib.Path):
             with data.open('rb') as fp:
-                resp = request(method, url=url, params=params or {}, headers=headers, data=fp, **kwargs)
+                resp = req(method, url=url, params=params or {}, headers=headers, data=fp, **kwargs)
         else:
-            resp = request(method, url=url, params=params or {}, headers=headers, data=data, **kwargs)
+            resp = req(method, url=url, params=params or {}, headers=headers, data=data, **kwargs)
         # read response status code
         if check_status:
             raise_for_ks3_status(resp)
@@ -212,6 +235,6 @@ class Client:
     def session(self) -> Optional[requests.Session]:
         """用户指定的 :class:`requests.Session`
 
-        :rtype: requests.Session
+        :rtype: Optional[requests.Session]
         """
         return self._session
