@@ -25,9 +25,10 @@
   pip install ks33requests
   ```
 
-- 源代码安装
+- 源码安装
 
   ```bash
+  cd ks33requests
   python setuptools.py install
   ```
 
@@ -39,13 +40,13 @@
 
 ## 用法
 
-参见: [notebooks](notebooks) 目录中的笔记
+见 [notebooks](notebooks) 目录中的笔记
 
 ## 文档
 
-参见: <https://ks33requests.readthedocs.io>
+见 <https://ks33requests.readthedocs.io>
 
-以及代码仓库中的:
+以及源码仓库中的文档:
 
 - [CHANGELOG](CHANGELOG.md)
 - [CONTRIBUTING](CONTRIBUTING.md)

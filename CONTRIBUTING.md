@@ -4,9 +4,9 @@
 >
 > 这个项目需要 [Python][] `3.5` 及以上版本。
 
-## 复刻项目代码
+## 复刻项目
 
-复刻项目代码到工作目录，然后切换到项目的目录：
+复刻项目源码到工作目录，然后切换到项目的目录：
 
 ```bash
 cd path/to/your/workspace/directory/
@@ -14,23 +14,33 @@ git clone https://github.com/tanbro/ks33requests.git
 cd ks33requests
 ```
 
-## 准备开发环境
+## 开发环境
 
-强烈建议在 [virtual environment][] 中进行开发工作。
+强烈建议在 [virtual environment][] 中进行开发工作。建议的方法有:
 
 - 标准库:
 
-  使用标准库的 [venv][] 与 [pip][] 直接新建名为 `venv`(此处仅为举例，可根据实际需要使用其它目录) 的虚拟环境目录，将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包：
+  使用 [venv][] 与 [pip][] 在目录 `env` (此处仅为举例，可根据实际需要使用其它目录) 创建虚拟环境，将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包：
 
-  ```bash
-  path/of/your/python -m venv venv
-  venv/bin/python setup.py develop
-  venv/bin/python -m pip install -r requires/dev.txt
-  ```
+  - Linux:
+
+    ```bash
+    path/of/your/python -m venv env
+    env/bin/python setup.py develop
+    env/bin/python -m pip install -r requires/dev.txt
+    ```
+
+  - Windows:
+
+    ```batch
+    path\of\python.exe -m venv env
+    env\Scripts\python.exe setup.py develop
+    env\Scripts\python.exe -m pip install -r requires\dev.txt
+    ```
 
 - [Pipenv][]:
 
-  使用 [Pipenv][] 命令直接安装:
+  以 **开发模式** 安装:
 
   ```bash
   pipenv install --dev
@@ -38,7 +48,7 @@ cd ks33requests
 
 - [conda][]:
 
-  使用 [conda][] 命令从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的环境，然后激活它，将本项目以 **开发模式** 安装到这个环境：
+  从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的环境，然后激活它，将本项目以 **开发模式** 安装到这个环境：
 
   ```bash
   conda env create -f environment.yml
@@ -46,7 +56,7 @@ cd ks33requests
   python setup.py develop
   ```
 
-### 编码条例
+## 编码条例
 
 1. 代码风格遵照 [PEP 8](https://www.python.org/dev/peps/pep-0008/)
 1. 版本命名遵照 [PEP 440](https://www.python.org/dev/peps/pep-0440/)
@@ -58,7 +68,7 @@ cd ks33requests
 1. 做静态检查，不提交带有错误或许多警告的代码
 1. 提供有足够覆盖面的测试用例
 
-### XML Schema
+## XML Schema
 
 [金山云][] [KS3][] 的 WebAPI 数据结构有许多与 [S3][] 兼容。
 所以，这个项目直接使用来自 <http://s3.amazonaws.com/doc/2006-03-01/AmazonS3.xsd> 的 Schema 转换部分数据的结构。
@@ -73,7 +83,7 @@ generateDS.py -f -o s3_api.py -s s3_sub.py --super=s3_api  schemas/AmazonS3.xsd
 
 生成的源代码文件复制到名称空间 `ks33requests.schemas` 中，小幅修改 `s3_sub.py` 的源码即可使用。
 
-### 运行测试用例
+## 运行测试
 
 ```bash
 python setup.py test
@@ -85,13 +95,13 @@ python setup.py test
 python -m coverage run setup.py test
 ```
 
-### 静态代码检查
+## 静态检查
 
 ```bash
 python -m flake8
 ```
 
-### 文档生成
+## 文档生成
 
 执行下面的命令构建文档，输出到目录 `build/sphinx`:
 
