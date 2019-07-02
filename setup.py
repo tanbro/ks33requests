@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""setuptools script of this package
 
-see:
-
-* https://packaging.python.org/
-* https://setuptools.readthedocs.io/
-"""
 from setuptools import setup
 
 setup(
@@ -15,9 +9,5 @@ setup(
         # post-release:	generates post release versions (adds postN)
         'version_scheme': 'guess-next-dev',
         'write_to': 'src/ks33requests/_scm_version.py',
-    },
-    install_requires=[
-        'requests<3.0,>=2.0',
-        'lxml<5.0,>=4.0'
-    ]
+    }
 )
