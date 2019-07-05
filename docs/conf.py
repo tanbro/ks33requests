@@ -83,6 +83,6 @@ html_static_path = ['_static']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/{0[0]}'.format(sys.version_info), None),
-    'requests': ('https://2.python-requests.org/en/stable/', None),
+    'python': ('https://docs.python.org/{0}/{1[0]}'.format(language.lower().replace('_', '-'), sys.version_info), None),
+    'requests': ('https://2.python-requests.org/{0}/latest'.format(language), None),
 }
