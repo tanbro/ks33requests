@@ -4,14 +4,11 @@
    contain the root `toctree` directive.
 
 ks33requests Documentations
-###########################
-
+===========================
 
 :Release: |release|
 :Date:    |today|
 :Version: |version|
-
-------
 
 Docs
 ----
@@ -34,8 +31,8 @@ Notebooks
 
    notebooks/*
 
-API
----
+API Reference
+-------------
 
 .. toctree::
    :glob:
@@ -43,9 +40,8 @@ API
 
    api/modules
 
-
 Indices and tables
-******************
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
