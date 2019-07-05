@@ -1,13 +1,15 @@
 # ks33requests
 
+[![CircleCI](https://circleci.com/gh/tanbro/ks33requests.svg?style=svg)](https://circleci.com/gh/tanbro/ks33requests)
+[![codecov](https://codecov.io/gh/tanbro/ks33requests/branch/master/graph/badge.svg)](https://codecov.io/gh/tanbro/ks33requests)
+[![Documentation Status](https://readthedocs.org/projects/ks33requests/badge/?version=stable)](https://ks33requests.readthedocs.io/zh_CN/stable/?badge=stable)
+[![GitHub](https://img.shields.io/github/license/tanbro/ks33requests.svg)](https://github.com/tanbro/ks33requests)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/tanbro/ks33requests.svg)](https://github.com/tanbro/ks33requests)
+[![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/tanbro/ks33requests.svg)](https://libraries.io/github/tanbro/ks33requests)
 [![PyPI](https://img.shields.io/pypi/v/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - License](https://img.shields.io/pypi/l/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Status](https://img.shields.io/pypi/status/ks33requests.svg)](https://pypi.org/project/ks33requests/)
-[![CircleCI](https://circleci.com/gh/tanbro/ks33requests.svg?style=svg)](https://circleci.com/gh/tanbro/ks33requests)
-[![codecov](https://codecov.io/gh/tanbro/ks33requests/branch/master/graph/badge.svg)](https://codecov.io/gh/tanbro/ks33requests)
-[![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/tanbro/ks33requests.svg)](https://libraries.io/github/tanbro/ks33requests)
-[![Documentation Status](https://readthedocs.org/projects/ks33requests/badge/?version=stable)](https://ks33requests.readthedocs.io/zh_CN/stable/?badge=stable)
 
 ## 概述
 
