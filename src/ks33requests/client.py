@@ -97,14 +97,7 @@ class Client:
 
             把URL参数中的::
 
-                "acl","lifecycle","location","logging","notification",
-                "partNumber","policy","requestPayment","torrent","uploadId",
-                "uploads","versionId","versioning","versions","website",
-                "delete","thumbnail","cors","queryadp","adp",
-                "asyntask","querytask","domain","response-content-type",
-                "response-content-language","response-expires",
-                "response-cache-control","response-content-disposition",
-                "response-content-encoding"
+                "acl","lifecycle","location","logging","notification", "partNumber","policy","requestPayment","torrent","uploadId", "uploads","versionId","versioning","versions","website", "delete","thumbnail","cors","queryadp","adp", "asyntask","querytask","domain","response-content-type", "response-content-language","response-expires", "response-cache-control","response-content-disposition", "response-content-encoding"
 
             筛选出来，将这些查询字符串及其请求值(不做URL编码的请求值)按照字典序，从小到大排列，以 `&` 为分隔符排列，即可得到 `SubResource` 。
 
