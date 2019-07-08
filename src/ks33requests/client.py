@@ -34,12 +34,12 @@ class Client:
     """
 
     def __init__(
-        self,
-        access_key: str = None,
-        secret_key: str = None,
-        endpoint: str = 'kss.ksyun.com',
-        session: requests.Session = None,
-        use_https: bool = True
+            self,
+            access_key: str = None,
+            secret_key: str = None,
+            endpoint: str = 'kss.ksyun.com',
+            session: requests.Session = None,
+            use_https: bool = True
     ):
         """
         :param str access_key: `KS3` 颁发给您的 `AccessKey` （长度为20个字符的ASCII字符串）。用于标识客户的身份。
@@ -55,19 +55,19 @@ class Client:
         self._use_https = bool(use_https)
 
     def send(
-        self,
-        method: str = 'get',
-        bucket_name: str = None,
-        object_key: str = None,
-        sub_resources: Union[str, List[str]] = None,
-        data=None,
-        encoding: str = None,
-        content_md5: str = None,
-        headers: Dict[str, str] = None,
-        params: Dict[str, str] = None,
-        check_status: bool = True,
-        session: requests.Session = None,
-        **kwargs
+            self,
+            method: str = 'get',
+            bucket_name: str = None,
+            object_key: str = None,
+            sub_resources: Union[str, List[str]] = None,
+            data=None,
+            encoding: str = None,
+            content_md5: str = None,
+            headers: Dict[str, str] = None,
+            params: Dict[str, str] = None,
+            check_status: bool = True,
+            session: requests.Session = None,
+            **kwargs
     ) -> requests.Response:
         """向 KS3 发送一个 HTTP API 请求，并返回对应的 HTTP 响应对象
 
@@ -97,7 +97,7 @@ class Client:
 
             把URL参数中的::
 
-                "acl","lifecycle","location","logging","notification", "partNumber","policy","requestPayment","torrent","uploadId", "uploads","versionId","versioning","versions","website", "delete","thumbnail","cors","queryadp","adp", "asyntask","querytask","domain","response-content-type", "response-content-language","response-expires", "response-cache-control","response-content-disposition", "response-content-encoding"
+                "acl","lifecycle","location","logging","notification", "partNumber","policy","requestPayment","torrent","uploadId", "uploads","versionId","versioning","versions","website", "delete","thumbnail","cors","queryadp","adp", "asyntask","querytask","domain","response-content-type", "response-content-language","response-expires", "response-cache-control","response-content-disposition", "response-content-encoding"  # noqa
 
             筛选出来，将这些查询字符串及其请求值(不做URL编码的请求值)按照字典序，从小到大排列，以 `&` 为分隔符排列，即可得到 `SubResource` 。
 
