@@ -10,6 +10,7 @@
 [![PyPI - License](https://img.shields.io/pypi/l/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ks33requests.svg)](https://pypi.org/project/ks33requests/)
 [![PyPI - Status](https://img.shields.io/pypi/status/ks33requests.svg)](https://pypi.org/project/ks33requests/)
+[![Requirements Status](https://requires.io/github/tanbro/ks33requests/requirements.svg?branch=master)](https://requires.io/github/tanbro/ks33requests/requirements/?branch=master)
 
 ## 概述
 
