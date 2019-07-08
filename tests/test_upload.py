@@ -3,11 +3,7 @@ import os
 import pathlib
 import unittest
 
-from dotenv import load_dotenv
-
 from ks33requests import Client, Ks3Error
-
-load_dotenv()
 
 KSYUN_ACCESS_KEY = os.environ['KSYUN_ACCESS_KEY']
 KSYUN_SECRET_KEY = os.environ['KSYUN_SECRET_KEY']

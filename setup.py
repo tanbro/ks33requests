@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import io
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name='ks33requests',
@@ -11,7 +12,7 @@ setup(
     author="Liu Xue Yan",
     author_email="liu_xue_yan@foxmail.com",
     long_description=(2 * os.linesep).join(
-        open(file).read()
+        io.open(file, encoding='utf-8').read()
         for file in ('README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'AUTHORS.md')
     ),
     long_description_content_type='text/markdown',
