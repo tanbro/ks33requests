@@ -11,7 +11,7 @@ setup(
     author="Liu Xue Yan",
     author_email="liu_xue_yan@foxmail.com",
     long_description=(2 * os.linesep).join(
-        open(file, encoding='utf-8').read().strip()
+        open(file).read()
         for file in ('README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'AUTHORS.md')
     ),
     long_description_content_type='text/markdown',
