@@ -20,23 +20,32 @@ cd ks33requests
 
 - 标准库:
 
-  使用 [venv][] 与 [pip][] 在目录 `env` (此处仅为举例，可根据实际需要使用其它目录) 创建虚拟环境，将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包：
+  1. 在名为 `venv`(此处仅为举例，可根据实际需要使用其它目录)的目录创建虚拟环境：
 
-  - Linux:
+     ```bash
+     path/of/your/python -m venv venv
+     ```
 
-    ```bash
-    path/of/your/python -m venv env
-    env/bin/python setup.py develop
-    env/bin/python -m pip install -r requires/dev.txt
-    ```
+  1. 激活虚拟环境
 
-  - Windows:
+     - Posix bash/zsh:
 
-    ```batch
-    path\of\python.exe -m venv env
-    env\Scripts\python.exe setup.py develop
-    env\Scripts\python.exe -m pip install -r requires\dev.txt
-    ```
+       ```bash
+       source venv/bin/activate
+       ```
+
+     - Windows PowerShell:
+
+       ```ps1
+       venv\Scripts\Activate.ps1
+       ```
+
+  1. 将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包：
+
+     ```bash
+     python setup.py develop
+     pip install -r requirements/dev.txt
+     ```
 
 - [Pipenv][]:
 
@@ -48,12 +57,10 @@ cd ks33requests
 
 - [conda][]:
 
-  从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的环境，然后激活它，将本项目以 **开发模式** 安装到这个环境：
+  从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的开发环境，将本项目将以 **开发模式** 安装到这个环境：
 
   ```bash
   conda env create -f environment.yml
-  conda activate ks33requests-dev
-  python setup.py develop
   ```
 
 ## 编码条例

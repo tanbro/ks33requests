@@ -2,6 +2,7 @@ name: ks33requests-dev
 channels:
   - conda-forge
 dependencies:
+  - python
   - requests
   - lxml
   - jupyter
@@ -18,3 +19,4 @@ dependencies:
   - pip:
       - generateDS
       - flake8-mypy
+      - -e ./
