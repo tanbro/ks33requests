@@ -20,37 +20,13 @@ cd ks33requests
 
 - 标准库:
 
-  在名为 `venv`(此处仅为举例，可根据实际需要使用其它目录)的目录创建虚拟环境，将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包（以 `Posix` + `bash` 为例）：
+  在子目录 `<venv>` (目录名用一个变量代表，应根据实际需要选择目录的名称) 创建虚拟环境，将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包（以 `Posix` + `bash` 为例）：
 
   ```bash
-  # 新建虚拟环境
-  path/of/your/python -m venv venv
-  # 以开发模式安装这个项目的包
-  venv/bin/python setup.py develop
-  # 安装其它开发工作需要的包
-  venv/bin/python -m pip install -r requirements/dev.txt
-     ```
-
-  1. 激活虚拟环境
-
-     - Posix bash/zsh:
-
-       ```bash
-       source venv/bin/activate
-       ```
-
-     - Windows PowerShell:
-
-       ```ps1
-       venv\Scripts\Activate.ps1
-       ```
-
-  1. 将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包：
-
-     ```bash
-     python setup.py develop
-     pip install -r requirements/dev.txt
-     ```
+  path/of/your/python -m venv <venv>
+  <venv>/bin/python setup.py develop
+  <venv>/bin/pip install -r requirements/dev.txt
+  ```
 
 - [Pipenv][]:
 
@@ -62,7 +38,7 @@ cd ks33requests
 
 - [conda][]:
 
-  从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的开发环境，将本项目将以 **开发模式** 安装到这个环境：
+  从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的开发环境，本项目以 **开发模式** 安装到这个环境：
 
   ```bash
   conda env create -f environment.yml
@@ -110,7 +86,7 @@ python -m coverage run setup.py test
 ## 静态检查
 
 ```bash
-python -m flake8
+python setup.py flake8
 ```
 
 ## 文档生成
