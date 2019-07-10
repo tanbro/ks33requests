@@ -20,29 +20,53 @@ cd ks33requests
 
 - 标准库:
 
-  在子目录 `<venv>` (目录名用一个变量代表，应根据实际需要选择目录的名称) 创建虚拟环境，将本项目以 **开发模式** 安装到这个环境，并安装开发工作所要使用的包（以 `Posix` + `bash` 为例）：
+  具体参考 <https://packaging.python.org/tutorials/installing-packages/> ，此处以`Posix`+`bash`的常见情况为例
 
-  ```bash
-  path/of/your/python -m venv <venv>
-  <venv>/bin/python setup.py develop
-  <venv>/bin/pip install -r requirements/dev.txt
-  ```
+  1. 在子目录 `<venv>` (目录名用一个变量代表，应根据实际情况选择则目录) 中创建虚拟环境
+
+     ```bash
+     path/of/your/python -m venv <venv>
+     ```
+
+  1. 激活虚拟环境
+
+     ```bash
+     source <venv>/bin/activate
+     ```
+
+  1. 将本项目以 **可编辑模式** 安装到这个环境，并安装开发工作所要使用的包
+
+     ```base
+     pip install -e ./ -r requirements/dev.txt
+     ```
 
 - [Pipenv][]:
 
-  以 **开发模式** 安装:
+  1. 按照 **开发模式** 为该项目安装一个新的虚拟环境
 
-  ```bash
-  pipenv install --dev
-  ```
+     ```bash
+     pipenv install --dev
+     ```
+
+  1. 激活虚拟环境
+
+     ```bash
+     pipenv shell
+     ```
 
 - [conda][]:
 
-  从配置文件 `environment.yml` 新建一个专用于这个项目的、名为`ks33requests-dev`的开发环境，本项目以 **开发模式** 安装到这个环境：
+  1. 从配置文件 `environment.yml` 为该项目安装一个新的虚拟环境，名为`ks33requests-dev`。本项目将以 **可编辑模式** 被安装到这个环境中。
 
-  ```bash
-  conda env create -f environment.yml
-  ```
+     ```bash
+     conda env create -f environment.yml
+     ```
+
+  1. 激活虚拟环境
+
+     ```bash
+     conda activate ks33requests-dev
+     ```
 
 ## 编码条例
 
@@ -74,27 +98,27 @@ generateDS.py -f -o s3_api.py -s s3_sub.py --super=s3_api  schemas/AmazonS3.xsd
 ## 运行测试
 
 ```bash
-python setup.py test
+python -m unittest
 ```
 
 如果需要在运行测试时进行代码覆盖性检查，可运行:
 
 ```bash
-python -m coverage run setup.py test
+python -m coverage run -m unittest
 ```
 
 ## 静态检查
 
 ```bash
-python setup.py flake8
+python -m flake8
 ```
 
 ## 文档生成
 
-执行下面的命令构建文档，输出到目录 `build/sphinx`:
+下面的命令将构建 `HTML` 文档，输出到目录 `docs/_build`:
 
 ```bash
-python setup.py build_sphinx
+python -m sphinx docs/ docs/_build
 ```
 
 > ℹ **说明**:
