@@ -22,7 +22,7 @@ cd ks33requests
 
   具体参考 <https://packaging.python.org/tutorials/installing-packages/> ，此处以`Posix`+`bash`的常见情况为例
 
-  1. 在子目录 `<venv>` (目录名用一个变量代表，应根据实际情况选择则目录) 中创建虚拟环境
+  1. 在子目录 `<venv>` (目录名用一个变量代表，取决于具体的实际情况) 中创建虚拟环境
 
      ```bash
      path/of/your/python -m venv <venv>
